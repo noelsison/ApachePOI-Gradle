@@ -1,0 +1,39 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.7
+version = '1.0'
+
+ext {
+        poiVersion = '3.10-FINAL'
+        ooxmlVersion = '1.1'
+    }
+    
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'POI Utils', 'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.apache.poi:poi:$poiVersion"
+    compile "org.apache.poi:poi-ooxml:$poiVersion"
+    compile "org.apache.poi:ooxml-schemas:$ooxmlVersion"
+    
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
