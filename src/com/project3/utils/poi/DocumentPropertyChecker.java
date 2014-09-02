@@ -238,30 +238,34 @@ public class DocumentPropertyChecker {
         return results;
     }
     //Check all paragraphs
-    public static Map<String, Object> checkPropertiesOfAllParagraphs(List<XWPFParagraph> pl, Map<String, String> properties) {
-        Map<String, Object> results = new HashMap<>(), 
-                             tempMap = new HashMap<>();
+    public static Map<String, TestQuestionResult> checkPropertiesOfAllParagraphs(List<XWPFParagraph> pl, Map<String, String> properties) {
+    	Map<String, TestQuestionResult> results = new HashMap<>(), 
+                             			tempMap = new HashMap<>();
         ArrayList tempList;
         String removeString = "";
         
         int paragraph_count = 0;
         
         // Initialize results, properties which were not found in the document are left as 0
-        for (String property : properties.keySet()) {
-            results.put(property, 0);
-        }
+        String s = "ALL PARAGRAPHS";
+    	results.put(s, new TestQuestionResult(s));
+    	
+    	for(String property: properties.keySet()) {
+    		results.get(s).getProperties().add(new TestQuestionProperty(property));
+    		results.get(s).getProperty(property).setCorrect(0);
+    	}
         
         for (XWPFParagraph p : pl) {
             if (p.getParagraphText().isEmpty()) { continue; }
             paragraph_count++;
             for (String property : properties.keySet()) {
                 if(checkIfParagraphHasProperty(p, property, properties.get(property))) {
-                    results.put( property, (int) results.get(property) + 1);
+                	results.get(s).getProperty(property).setCorrect(results.get(s).getProperty(property).getCorrect() + 1);
                 }
             }
         }
         for (String property : properties.keySet()) {
-            results.put( property, results.get(property) + "/" + paragraph_count);
+        	results.get(s).getProperty(property).setTotal(paragraph_count);
         }
         return results;
     }
@@ -280,18 +284,23 @@ public class DocumentPropertyChecker {
                 return false;
         }
     }
-    public static Map<String, Object> checkPropertiesOfDocument(XWPFDocument docx, Map<String, String> properties) {
-        Map<String, Object> results = new HashMap<>();
+    public static Map<String, TestQuestionResult> checkPropertiesOfDocument(XWPFDocument docx, Map<String, String> properties) {
+    	Map<String, TestQuestionResult> results = new HashMap<>();
         CTPageMar margin = docx.getDocument().getBody().getSectPr().getPgMar();
         
         // Initialize results, properties which were not found in the document are left as 0
-        for (String property : properties.keySet()) {
-            results.put(property, "0/1");
-        }
+        String s = "DOCUMENT";
+    	results.put(s, new TestQuestionResult(s));
+    	
+    	for(String property: properties.keySet()) {
+    		results.get(s).getProperties().add(new TestQuestionProperty(property));
+    		results.get(s).getProperty(property).setCorrect(0);
+    		results.get(s).getProperty(property).setTotal(0);
+    	}
         
         for (String property : properties.keySet()) {
             if(checkIfDocumentHasProperty(docx, property, properties.get(property))) {
-                results.put(property, "1/1");
+            	results.get(s).getProperty(property).setCorrect(1);
             }
         }
         return results;
