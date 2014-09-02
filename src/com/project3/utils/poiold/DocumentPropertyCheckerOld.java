@@ -20,7 +20,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
  * Make this class read from XML files that contain the formatted "question"
  * @author Noel
  */
-public class DocumentPropertyChecker {
+public class DocumentPropertyCheckerOld {
     
     public static Map<String, HashMap> checkIfStringsExistInParagraph(XWPFParagraph p, List<String> sl) {
         Map<String, HashMap> results = new HashMap();

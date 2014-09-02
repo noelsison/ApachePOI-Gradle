@@ -14,11 +14,11 @@
       ],
       "properties": [
         {
-          "property": "FONT FAMILY",
+          "name": "FONT FAMILY",
           "value": "MV Boli"
         },
         {
-          "property": "FONT SIZE",
+          "name": "FONT SIZE",
           "value": "12"
         }
       ]
@@ -35,7 +35,7 @@
       ],
       "properties": [
         {
-          "property": "BOLD",
+          "name": "BOLD",
           "value": "true"
         }
       ]
@@ -53,7 +53,7 @@
       ],
       "properties": [
         {
-          "property": "LINE SPACING",
+          "name": "LINE SPACING",
           "value": "1.5"
         }
       ]
@@ -80,7 +80,7 @@
       ],
       "properties": [
         {
-          "property": "NUMBERING FORMAT",
+          "name": "NUMBERING FORMAT",
           "value": "bullet"
         }
       ]
@@ -101,19 +101,19 @@
       "strings": [],
       "properties": [
         {
-          "property": "MARGIN TOP",
+          "name": "MARGIN TOP",
           "value": "2"
         },
         {
-          "property": "MARGIN BOTTOM",
+          "name": "MARGIN BOTTOM",
           "value": "2"
         },
         {
-          "property": "MARGIN LEFT",
+          "name": "MARGIN LEFT",
           "value": "2"
         },
         {
-          "property": "MARGIN RIGHT",
+          "name": "MARGIN RIGHT",
           "value": "2"
         }
       ]
@@ -125,7 +125,7 @@
       "strings": [],
       "properties": [
         {
-          "property": "ALIGN",
+          "name": "ALIGN",
           "value": "both"
         }
       ]

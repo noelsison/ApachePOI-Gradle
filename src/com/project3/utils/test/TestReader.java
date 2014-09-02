@@ -81,7 +81,7 @@ public class TestReader {
 			jsonPropertiesIterator = jsonProperties.iterator();
 			while (jsonPropertiesIterator.hasNext()) {
 				jsonProperty = jsonPropertiesIterator.next();
-				tempProperties.put(jsonProperty.get("property").toString(), jsonProperty.get("value").toString());
+				tempProperties.put(jsonProperty.get("name").toString(), jsonProperty.get("value").toString());
 			}
 			tempTestQuestion.setProperties(tempProperties);
 			

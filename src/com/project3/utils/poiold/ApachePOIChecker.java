@@ -80,7 +80,7 @@ public class ApachePOIChecker {
             // Result is displayed as String = {Property1 = Score1, Property2 = Score2, ...}
             // Scores are determined by the number of elements within the paragraph which follows the given formatting
             Map<String, HashMap> results;
-            results = DocumentPropertyChecker.checkRunPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
+            results = DocumentPropertyCheckerOld.checkRunPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
             System.out.println("1. " + results.toString());
             System.out.println("");
             //2
@@ -91,7 +91,7 @@ public class ApachePOIChecker {
             properties = new HashMap();
             properties.put("BOLD", "true");
             
-            results = DocumentPropertyChecker.checkRunPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
+            results = DocumentPropertyCheckerOld.checkRunPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
             System.out.println("2. " + results.toString());
             System.out.println("");
             //3
@@ -104,13 +104,13 @@ public class ApachePOIChecker {
             properties = new HashMap();
             properties.put("LINE SPACING", "1.5");
             
-            results = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
+            results = DocumentPropertyCheckerOld.checkPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
             System.out.println("3. " + results.toString());
             System.out.println("");
             //4
             tl = new String[]{"2008-2011"};
             sl.addAll(Arrays.asList(tl));
-            results = DocumentPropertyChecker.checkIfStringExistsInParagraphs(docx1.getParagraphs(), sl);
+            results = DocumentPropertyCheckerOld.checkIfStringExistsInParagraphs(docx1.getParagraphs(), sl);
             System.out.println("4. " + results.toString());
             System.out.println("");
             //5
@@ -123,13 +123,13 @@ public class ApachePOIChecker {
             properties = new HashMap();
             properties.put("NUMBERING FORMAT", "bullet"); 
             
-            results = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
+            results = DocumentPropertyCheckerOld.checkPropertiesOfParagraphs(docx1.getParagraphs(), sl, properties);
             System.out.println("5. " + results.toString());
             System.out.println("");
             //6
             tl = new String[]{"Black Pen Movement \u00AE"};
             sl.addAll(Arrays.asList(tl));
-            results = DocumentPropertyChecker.checkIfStringExistsInParagraphs(docx1.getParagraphs(), sl);
+            results = DocumentPropertyCheckerOld.checkIfStringExistsInParagraphs(docx1.getParagraphs(), sl);
             System.out.println("6. " + results.toString());
             System.out.println("");
             //7
@@ -139,13 +139,13 @@ public class ApachePOIChecker {
             properties.put("MARGIN LEFT", "2");
             properties.put("MARGIN RIGHT", "2");
             
-            System.out.println("7. " + DocumentPropertyChecker.checkPropertiesOfDocument(docx1, properties).toString());
+            System.out.println("7. " + DocumentPropertyCheckerOld.checkPropertiesOfDocument(docx1, properties).toString());
             System.out.println("");
             //8
             properties = new HashMap();
             properties.put("ALIGN", "both");
             
-            System.out.println("8. " + DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx1.getParagraphs(), properties).toString());
+            System.out.println("8. " + DocumentPropertyCheckerOld.checkPropertiesOfAllParagraphs(docx1.getParagraphs(), properties).toString());
             
         } catch (IOException ex) {
             Logger.getLogger(ApachePOIChecker.class.getName()).log(Level.SEVERE, null, ex);
