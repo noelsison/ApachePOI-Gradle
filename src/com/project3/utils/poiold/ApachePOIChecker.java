@@ -4,10 +4,11 @@
  * and open the template in the editor.
  */
 
-package com.project3.utils.poi;
+package com.project3.utils.poiold;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,11 +32,25 @@ public class ApachePOIChecker {
     
     @SuppressWarnings("empty-statement")
     public static void main(String[] args) {
-    	checkDocument("C:\\Users\\Noel\\git\\ApachePOI-Gradle\\docx\\resume_only.docx");
+    	checkDocument1("C:\\Users\\Noel\\git\\ApachePOI-Gradle\\docx\\test_1.docx");
+    }
+    public static void checkDocument2(String filename) {
+    	try {
+			XWPFDocument docx = new XWPFDocument(new FileInputStream(new File(filename)));
+			
+			
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
     }
     
-    
-    public static void checkDocument(String filename) {
+    public static void checkDocument1(String filename) {
     	try {
             // Open document to check
             /*

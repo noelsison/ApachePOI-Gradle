@@ -4,13 +4,13 @@
  * and open the template in the editor.
  */
 
-package com.project3.utils.poi;
+package com.project3.utils.poiold;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -21,12 +21,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
  * @author Noel
  */
 public class DocumentPropertyChecker {
-    // Make better documentation later
-    // Pass a list of paragraphs with the said propeties?
-    // Pass a list of runs in a paragraph
-    // check if run in passed text
-    // double hash map
-    // exists + properties
+    
     public static Map<String, HashMap> checkIfStringsExistInParagraph(XWPFParagraph p, List<String> sl) {
         Map<String, HashMap> results = new HashMap();
         for (String s: sl) {
@@ -71,7 +66,7 @@ public class DocumentPropertyChecker {
         //Initialize counts to 0
         for (String s : sl) {
             for (String property : properties.keySet()) {
-                results.get(s).put( property, 0);
+                results.get(s).put(property, 0);
             }
         }
         //For each existing string, 
@@ -112,7 +107,7 @@ public class DocumentPropertyChecker {
     public static Map<String, HashMap> checkRunPropertiesOfParagraphs(List<XWPFParagraph> pl, ArrayList<String> sl, Map<String, String> properties) {
         Map<String, HashMap> results = new HashMap<>(), 
                              tempMap = new HashMap<>();
-        ArrayList tempList;
+        ArrayList<String> tempList;
         String removeString = "";
         
         // Initialize results, strings which were not found in the document are left as EXISTS : false

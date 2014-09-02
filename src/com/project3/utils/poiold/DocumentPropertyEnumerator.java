@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.project3.utils.poi;
+package com.project3.utils.poiold;
 
 import java.util.List;
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
@@ -105,7 +105,7 @@ public class DocumentPropertyEnumerator {
             showParagraphElementProperties(p.getRuns());
         }
     }
-    public static void showParagraphPropertiesOnly(List<XWPFParagraph> lp)
+    public static void showAllParagraphProperties(List<XWPFParagraph> lp)
     {
         int i1 = 1;
         for (XWPFParagraph p : lp) {
@@ -114,7 +114,6 @@ public class DocumentPropertyEnumerator {
             if(p.getParagraphText().trim().length() > 0) {
                 System.out.println("\n#" + i1++ + " LINE: " + p.getParagraphText());
                 System.out.println("ALIGNMENT: " + p.getAlignment().toString());
-                //Uncomment to display other properties
                 
                 System.out.println("BORDER BETWEEN: " + p.getBorderBetween().toString());
                 System.out.println("BORDER BOTTOM: " + p.getBorderBottom().toString());
@@ -133,7 +132,6 @@ public class DocumentPropertyEnumerator {
                 
                 XWPFParagraphClone pc;
                 pc = new XWPFParagraphClone(p.getCTP(), p.getBody());
-                
                 
                 System.out.println("SPACING VALUE: " + pc.getCTSpacing(false).getLine().floatValue()/240);
                 System.out.println("SPACING AFTER: " + p.getSpacingAfter());
