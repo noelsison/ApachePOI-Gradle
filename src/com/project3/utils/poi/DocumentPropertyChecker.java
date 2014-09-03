@@ -67,7 +67,7 @@ public class DocumentPropertyChecker {
         for (String s: sl) {
         	results.put(s, new TestQuestionResult(s));
         	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestQuestionProperty(property));
+        		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
         	}
         }
         //Check first if elements in sl are in p
@@ -120,7 +120,7 @@ public class DocumentPropertyChecker {
         for (String s: sl) {
         	results.put(s, new TestQuestionResult(s));
         	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestQuestionProperty(property));
+        		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
         	}
         }
         
@@ -174,7 +174,7 @@ public class DocumentPropertyChecker {
         results.put(s, new TestQuestionResult(s));
         
         for(String property: properties.keySet()) {
-    		results.get(s).getProperties().add(new TestQuestionProperty(property));
+    		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
     	}
         
         results.get(s).setExists(p.getParagraphText().contains(s));
@@ -182,6 +182,7 @@ public class DocumentPropertyChecker {
         //Initialize counts to 0
 
         for (String property : properties.keySet()) {
+            results.get(s).setExists(false);
         	results.get(s).getProperty(property).setCorrect(0);
         	results.get(s).getProperty(property).setTotal(0);
         }
@@ -190,7 +191,9 @@ public class DocumentPropertyChecker {
         for (String property : properties.keySet()) {
             if (checkIfParagraphHasProperty(p, property, properties.get(property)))
             {
+                results.get(s).setExists(true);
             	results.get(s).getProperty(property).setCorrect(1);
+            	results.get(s).getProperty(property).setTotal(1);
             }
         }
         
@@ -208,7 +211,7 @@ public class DocumentPropertyChecker {
         for (String s: sl) {
         	results.put(s, new TestQuestionResult(s));
         	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestQuestionProperty(property));
+        		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
         	}
         }
         //Check first if elements in sl are in p
@@ -251,7 +254,7 @@ public class DocumentPropertyChecker {
     	results.put(s, new TestQuestionResult(s));
     	
     	for(String property: properties.keySet()) {
-    		results.get(s).getProperties().add(new TestQuestionProperty(property));
+    		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
     		results.get(s).getProperty(property).setCorrect(0);
     	}
         
@@ -260,6 +263,7 @@ public class DocumentPropertyChecker {
             paragraph_count++;
             for (String property : properties.keySet()) {
                 if(checkIfParagraphHasProperty(p, property, properties.get(property))) {
+                    results.get(s).setExists(true);
                 	results.get(s).getProperty(property).setCorrect(results.get(s).getProperty(property).getCorrect() + 1);
                 }
             }
@@ -293,14 +297,17 @@ public class DocumentPropertyChecker {
     	results.put(s, new TestQuestionResult(s));
     	
     	for(String property: properties.keySet()) {
-    		results.get(s).getProperties().add(new TestQuestionProperty(property));
+    		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+    		results.get(s).setExists(false);
     		results.get(s).getProperty(property).setCorrect(0);
     		results.get(s).getProperty(property).setTotal(0);
     	}
         
         for (String property : properties.keySet()) {
             if(checkIfDocumentHasProperty(docx, property, properties.get(property))) {
+                results.get(s).setExists(true);
             	results.get(s).getProperty(property).setCorrect(1);
+            	results.get(s).getProperty(property).setTotal(1);
             }
         }
         return results;

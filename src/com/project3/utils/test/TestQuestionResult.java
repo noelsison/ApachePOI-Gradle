@@ -24,7 +24,6 @@ public class TestQuestionResult {
 	public void setProperties(List<TestQuestionProperty> properties) {
 		this.properties = properties;
 	}
-	
 	public TestQuestionProperty getProperty(String s) {
 		for (TestQuestionProperty tqp: properties) {
 			if (tqp.getName().equalsIgnoreCase(s)) {
@@ -32,5 +31,8 @@ public class TestQuestionResult {
 			}
 		}
 		return null;
+	}
+	public String toString() {
+	    return "String: " + this.string + ", Exists: " + this.exists + ", Properties: " + this.properties;
 	}
 }

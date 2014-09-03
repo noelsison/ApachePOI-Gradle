@@ -4,9 +4,7 @@ public class TestQuestionProperty {
 	private String name, value;
 	private int correct = 0, 
 			    total = 0;
-	public TestQuestionProperty (String name) {
-		this.name = name;
-	}
+
 	public TestQuestionProperty (String name, String value) {
 		this.name = name;
 		this.value = value;
@@ -34,5 +32,8 @@ public class TestQuestionProperty {
 	}
 	public void setTotal(int total) {
 		this.total = total;
+	}
+	public String toString() {
+	    return "Name: " + this.name + ", Value: " + this.value + ", Score: " + this.correct + "/" + this.total;
 	}
 }
