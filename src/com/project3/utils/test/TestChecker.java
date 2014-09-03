@@ -1,40 +1,55 @@
 package com.project3.utils.test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import com.project3.utils.poi.DocumentPropertyChecker;
-import com.project3.utils.poiold.DocumentPropertyCheckerOld;
 
 public class TestChecker {
+	
 	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {
+		System.out.println("Text\tExists\tProperties\tCorrect\tTotal");
 		for (TestQuestion o: testQuestionList) {
-			System.out.println(checkQuestion(docx, o));
+			Map<String, TestQuestionResult> resultMap = checkQuestion(docx, o); 
+			System.out.println(resultMapToString(resultMap));			
 		}
 	}
-	public static String checkQuestion(XWPFDocument docx, TestQuestion o) {
-		String result;
+	
+	public static Map<String, TestQuestionResult> checkQuestion(XWPFDocument docx, TestQuestion o) {
+		Map<String, TestQuestionResult> resultMap = new HashMap<String, TestQuestionResult>();
+		
 		switch (o.getType()) {
-		case TestConstants.RUN:
-			result = DocumentPropertyChecker.checkRunPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(), o.getProperties()).toString();
+		case RUN:
+			resultMap = DocumentPropertyChecker.checkRunPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(), o.getProperties());
 			break;
-		case TestConstants.PARAGRAPH:
-			result = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(),  o.getProperties()).toString();
+		case PARAGRAPH:
+			resultMap = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(),  o.getProperties());
 			break;
-		case TestConstants.ALL_PARAGRAPHS:
-			result = DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx.getParagraphs(),  o.getProperties()).toString();
+		case ALL_PARAGRAPHS:
+			resultMap = DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx.getParagraphs(),  o.getProperties());
 			break;
-		case TestConstants.MATCH:
-			result = DocumentPropertyChecker.checkIfStringExistsInParagraphs(docx.getParagraphs(), o.getStrings()).toString();
+		case MATCH:
+			resultMap = DocumentPropertyChecker.checkIfStringExistsInParagraphs(docx.getParagraphs(), o.getStrings());
 			break;
-		case TestConstants.DOCUMENT:
-			result = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties()).toString();
+		case DOCUMENT:
+			resultMap = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties());
 			break;
 		default:
-			result = "Question type unsupported: " + o.getType();
 			break;
 		}
-		return result;
+		return resultMap;
+	}
+	
+	private static String resultMapToString(Map<String, TestQuestionResult> resultMap) {
+		StringBuffer result = new StringBuffer();
+		
+		for (Map.Entry<String, TestQuestionResult> entry : resultMap.entrySet()) {
+			result.append(entry.getValue().toString()).append("\n");
+		}
+		
+		return result.toString();
 	}
 }

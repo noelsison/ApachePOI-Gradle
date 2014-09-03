@@ -33,6 +33,33 @@ public class DocumentPropertyChecker {
         }
         return results;
     }
+    
+    public static String getRunProperty(XWPFRun r, String property) {
+        try {
+            switch (property) {
+                case "COLOR":
+                    return r.getColor();
+                case "FONT FAMILY":
+                    return r.getFontFamily();
+                case "FONT SIZE":
+                    return r.getFontSize() + "";
+                case "BOLD":
+                    return r.isBold() +"";
+                case "ITALIC":
+                    return r.isItalic()+"";
+                case "STRIKETHROUGH":
+                    return r.isStrike()+"";
+                default:
+                    System.out.println("Property " + property +  " does not exist!");
+                    return "NIL";
+            }
+        }
+        catch (NullPointerException e) {
+            return "NIL";
+        }
+    }
+    
+    
     public static Boolean checkIfRunHasProperty(XWPFRun r, String property, String value) {
         try {
             switch (property) {
@@ -65,13 +92,16 @@ public class DocumentPropertyChecker {
         
         //Initialize results
         for (String s: sl) {
+//        	System.out.println("### For string " + s);
         	results.put(s, new TestQuestionResult(s));
         	for(String property: properties.keySet()) {
+//        		System.out.println("\t\tAdd test question property "+property);
         		results.get(s).getProperties().add(new TestQuestionProperty(property));
         	}
         }
         //Check first if elements in sl are in p
         for (String s: sl) {
+//        	System.out.println("\t\tExists in paragraph");
         	results.get(s).setExists(p.getParagraphText().contains(s));
         }
 
@@ -81,13 +111,18 @@ public class DocumentPropertyChecker {
             if (r.toString().isEmpty()) {
                 continue;
             }
+            
+//            System.out.println("\t\tRun text is "+ r.getText(0));
+            
             for (String s : sl) {
                 //Skip string if it does't exist
                 if (results.get(s).isExists()) {
+//                	System.out.println("\t\tChecking run properties");
                     //For each property, check if it applies to the run
                     for (String property : properties.keySet()) {
-                        if (checkIfRunHasProperty(r, property, properties.get(property)))
-                        {
+                    	System.out.println("\t\t\t"+property+"="+properties.get(property)+" vs "+getRunProperty(r,property));
+                        if (checkIfRunHasProperty(r, property, properties.get(property))) {
+                        	results.get(s).getProperty(property).setValue(getRunProperty(r,property));
                         	results.get(s).getProperty(property).setCorrect(results.get(s).getProperty(property).getCorrect() + 1);
                         }
                     }

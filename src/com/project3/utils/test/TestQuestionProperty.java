@@ -4,6 +4,7 @@ public class TestQuestionProperty {
 	private String name, value;
 	private int correct = 0, 
 			    total = 0;
+	
 	public TestQuestionProperty (String name) {
 		this.name = name;
 	}
