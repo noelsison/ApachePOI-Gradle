@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import com.project3.utils.poi.DocumentPropertyChecker;
-import com.project3.utils.poiold.DocumentPropertyCheckerOld;
 
 public class TestChecker {
 	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {

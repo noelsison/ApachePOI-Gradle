@@ -33,7 +33,9 @@ public class TestQuestionProperty {
 	public void setTotal(int total) {
 		this.total = total;
 	}
-	public String toString() {
-	    return "Name: " + this.name + ", Value: " + this.value + ", Score: " + this.correct + "/" + this.total;
-	}
+	@Override
+  public String toString() {
+    return "[name=" + name + ", value=" + value + ", correct=" + correct
+        + ", total=" + total + "]";
+  }
 }

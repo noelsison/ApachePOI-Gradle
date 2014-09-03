@@ -6,7 +6,7 @@ import java.util.List;
 public class TestQuestionResult {
 	private String string;
 	private boolean exists = false;
-	private List<TestQuestionProperty> properties = new ArrayList();
+	private List<TestQuestionProperty> properties = new ArrayList<TestQuestionProperty>();
 	
 	public TestQuestionResult (String s) {
 		this.string = s;
@@ -32,7 +32,9 @@ public class TestQuestionResult {
 		}
 		return null;
 	}
-	public String toString() {
-	    return "String: " + this.string + ", Exists: " + this.exists + ", Properties: " + this.properties;
-	}
+	@Override
+  public String toString() {
+    return "(string=" + string + ", exists=" + exists + ", properties="
+        + properties +")";
+  }
 }
