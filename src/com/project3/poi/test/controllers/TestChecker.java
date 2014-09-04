@@ -29,18 +29,18 @@ public class TestChecker {
 		case RUN:
 			resultMap = DocumentPropertyChecker.checkRunQuestion(docx.getParagraphs(), question);
 			break;
-//		case PARAGRAPH:
-//			resultMap = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(),  o.getProperties());
-//			break;
-//		case ALL_PARAGRAPHS:
-//			resultMap = DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx.getParagraphs(),  o.getProperties());
-//			break;
+		case PARAGRAPH:
+			resultMap = DocumentPropertyChecker.checkParagraphQuestion(docx.getParagraphs(), question);
+			break;
+		case ALL_PARAGRAPHS:
+			resultMap = DocumentPropertyChecker.checkAllParagraphsQuestion(docx.getParagraphs(),  question);
+			break;
 		case MATCH:
 			resultMap = DocumentPropertyChecker.checkStringsInParagraphs(docx.getParagraphs(), question);
-//			break;
-//		case DOCUMENT:
-//			resultMap = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties());
-//			break;
+			break;
+		case DOCUMENT:
+			resultMap = DocumentPropertyChecker.checkDocumentQuestion(docx, question);
+			break;
 		default:
 			break;
 		}

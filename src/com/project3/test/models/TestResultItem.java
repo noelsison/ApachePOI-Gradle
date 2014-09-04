@@ -52,6 +52,10 @@ public class TestResultItem {
 	public void setProperty(TestResultProperty property) {
 		properties.put(property.getName(), property);
 	}
+	
+	public boolean hasProperty(String name) {
+		return properties.containsKey(name);
+	}
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
