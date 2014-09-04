@@ -6,13 +6,18 @@
 
 package com.project3.utils.poi;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFHyperlink;
+import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 
@@ -31,6 +36,9 @@ public class DocumentPropertyChecker {
     public static Boolean checkIfRunHasProperty(XWPFRun r, String property, String value) {
         try {
             switch (property) {
+                case "HYPERLINK":
+                    XWPFHyperlink link = ((XWPFHyperlinkRun) r).getHyperlink(r.getDocument());
+                    return link.getURL().toString().contains(value);
                 case "COLOR":
                     return r.getColor().equals(value);
                 case "FONT FAMILY":
@@ -154,13 +162,15 @@ public class DocumentPropertyChecker {
         try {
             switch (property) {
                 case "LINE SPACING":
-                    XWPFParagraphClone pc;
-                    pc = new XWPFParagraphClone(p.getCTP(), p.getBody());
+                    TestXWPFParagraph pc;
+                    pc = new TestXWPFParagraph(p.getCTP(), p.getBody());
                     return pc.getCTSpacing(false).getLine().floatValue()/240 == Float.parseFloat(value);
                 case "NUMBERING FORMAT":
                     return p.getNumFmt().equalsIgnoreCase(value);
                 case "ALIGN":
                     return p.getAlignment().toString().equalsIgnoreCase(value);
+                case "BORDER BOTTOM":
+                    return p.getBorderBottom().toString().equalsIgnoreCase(value);
                 default:
                     System.out.println("Property " + property +  " does not exist!");
                     return false;
@@ -329,7 +339,7 @@ public class DocumentPropertyChecker {
         
         for (XWPFParagraph p : pl) {
             if (p.getParagraphText().isEmpty()) { continue; }
-            if (removeStrings.isEmpty()) { removeStrings = new ArrayList<String>(); }
+            if (!removeStrings.isEmpty()) { removeStrings = new ArrayList<String>(); }
             for (String s : sl) {
                 if (p.getParagraphText().contains(s)) {
                     results.get(s).setExists(true);;
@@ -340,6 +350,52 @@ public class DocumentPropertyChecker {
                 sl.remove(s);
             }
         }
+        return results;
+    }
+    public static boolean checkIfPictureHasProperty(XWPFPictureData picture, String property, String value) {
+        switch (property) {
+          case "EXTENSION":
+            return picture.suggestFileExtension().equalsIgnoreCase(value);
+          default: 
+            System.out.print("Picture property unsupported: " + property);
+            return false;
+        }
+    }
+    /**
+     * For now, sl contains checksums of pictures to identify them
+     */
+    public static Map<String, TestQuestionResult> checkPropertiesOfPictures(List<XWPFPictureData> pictureList, ArrayList<String> sl, Map<String, String> properties) {
+        Map<String, TestQuestionResult> results = new HashMap<>();
+        String removeString = "";
+        // Initialize results, properties which were not found in the document are left as 0
+        for (String s: sl) {
+            results.put(s, new TestQuestionResult(s));
+            for(String property: properties.keySet()) {
+              results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+              results.get(s).setExists(false);
+              results.get(s).getProperty(property).setCorrect(0);
+              results.get(s).getProperty(property).setTotal(0);
+            }
+        }
+        for (XWPFPictureData picture: pictureList) {
+            for (String s: sl) {
+               if(picture.getChecksum() == Long.parseLong(s)) {
+                 results.get(s).setExists(true);
+                   for (String property : properties.keySet()) {
+                         if(checkIfPictureHasProperty(picture, property, properties.get(property))) {
+                             results.get(s).getProperty(property).setCorrect(1);
+                             results.get(s).getProperty(property).setTotal(1);
+                         }
+                   }
+                 removeString = s;
+                 break;
+               }
+            }
+            if (! removeString.isEmpty()) {
+              sl.remove(removeString);
+            }
+        }
+        
         return results;
     }
 }

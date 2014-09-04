@@ -30,6 +30,9 @@ public class TestChecker {
 		case TestConstants.DOCUMENT:
 			result = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties()).toString();
 			break;
+		case TestConstants.PICTURE:
+          result = DocumentPropertyChecker.checkPropertiesOfPictures(docx.getAllPictures(), o.getStrings(), o.getProperties()).toString();
+          break;
 		default:
 			result = "Question type unsupported: " + o.getType();
 			break;

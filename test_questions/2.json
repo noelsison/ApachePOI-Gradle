@@ -14,6 +14,20 @@
       ],
       "properties": []
     },
+	{
+      "name": "3",
+      "type": "RUN",
+      "mustPass": "",
+      "strings": [
+        "Personal Website"
+      ],
+      "properties": [
+        {
+          "name": "HYPERLINK",
+          "value": "www.teachmartin.tk"
+        }
+      ]
+    },
     {
       "name": "4",
       "type": "MATCH",
@@ -34,6 +48,27 @@
         {
           "name": "FONT SIZE",
           "value": "12"
+        }
+      ]
+    },
+	{
+      "name": "5",
+      "type": "PICTURE",
+      "mustPass": "",
+      "strings": ["1035063468"],
+      "properties": []
+    },
+	{
+      "name": "7",
+      "type": "PARAGRAPH",
+      "mustPass": "",
+      "strings": [
+        "Personal Website"
+      ],
+      "properties": [
+        {
+          "name": "BORDER BOTTOM",
+          "value": "SINGLE"
         }
       ]
     },

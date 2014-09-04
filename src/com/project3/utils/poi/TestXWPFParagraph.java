@@ -76,7 +76,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTextAlignment;
  *  actual text (possibly along with more styling) is held on
  *  the child {@link XWPFRun}s.</p>
  */
-public class XWPFParagraphClone extends XWPFParagraph{
+public class TestXWPFParagraph extends XWPFParagraph{
     private final CTP paragraph;
     protected IBody part;
     /** For access to the document's hyperlink, comments, tables etc */
@@ -86,7 +86,7 @@ public class XWPFParagraphClone extends XWPFParagraph{
 
     private StringBuffer footnoteText = new StringBuffer();
 
-    public XWPFParagraphClone(CTP prgrph, IBody part) {
+    public TestXWPFParagraph(CTP prgrph, IBody part) {
         super(prgrph, part);
         this.paragraph = prgrph;
     }

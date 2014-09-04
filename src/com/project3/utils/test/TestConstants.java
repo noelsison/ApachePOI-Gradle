@@ -5,5 +5,6 @@ public class TestConstants {
 							   PARAGRAPH = "PARAGRAPH",
 							   ALL_PARAGRAPHS = "ALL PARAGRAPHS",
 							   MATCH = "MATCH",
-							   DOCUMENT = "DOCUMENT";
+							   DOCUMENT = "DOCUMENT",
+							   PICTURE = "PICTURE";
 }
