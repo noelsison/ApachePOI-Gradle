@@ -2,7 +2,6 @@ package com.project3.poi.test.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -15,10 +14,8 @@ public class TestChecker {
 	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {
 		System.out.println("Text\tExists\tProperties\tCorrect\tTotal");
 		for (TestQuestion o: testQuestionList) {
-//			Map<String, TestResultItem> = checkQuestion(docx, o); 
 			List<TestResultItem> results = checkQuestion(docx, o);
 			System.out.println(resultsToString(results));
-//			System.out.println(resultMapToString(resultMap));			
 		}
 	}
 	
@@ -45,16 +42,6 @@ public class TestChecker {
 			break;
 		}
 		return resultMap;
-	}
-	
-	private static String resultMapToString(Map<String, TestResultItem> resultMap) {
-		StringBuffer result = new StringBuffer();
-		
-		for (Map.Entry<String, TestResultItem> entry : resultMap.entrySet()) {
-			result.append(entry.getValue().toString()).append("\n");
-		}
-		
-		return result.toString();
 	}
 	
 	private static String resultsToString(List<TestResultItem> results) {

@@ -7,7 +7,6 @@ public class TestResultItem {
 
 	private String string;
 	private boolean exists;
-//	private List<TestResultProperty> properties;
 	private Map<String, TestResultProperty> properties;
 
 	public TestResultItem(String s) {
@@ -35,10 +34,6 @@ public class TestResultItem {
 			return new TestResultProperty("");
 		}
 	}
-	
-//	public Map<String, TestResultProperty> getProperties() {
-//		return properties;
-//	}
 
 	public void setProperties(Map<String, TestResultProperty> properties) {
 		this.properties = properties;
@@ -59,9 +54,8 @@ public class TestResultItem {
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		// sb.append("Text\tExists\tProperties\n");
 		sb.append(string).append("\t").append(exists).append("\t");
-//		for (TestResultProperty property : properties) {
+		
 		for ( Map.Entry<String, TestResultProperty> entry : properties.entrySet()) {
 			TestResultProperty property = entry.getValue();
 			sb.append(property.getName()).append("=")
@@ -69,7 +63,7 @@ public class TestResultItem {
 					.append(property.getScore()).append("\t")
 					.append(property.getTotal()).append("\n\t\t");
 		}
-		// sb.append("\n");
+		
 		return sb.toString();
 	}
 }
