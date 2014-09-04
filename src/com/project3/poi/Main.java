@@ -1,4 +1,4 @@
-package com.project3.utils.poi;
+package com.project3.poi;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,9 +8,9 @@ import java.util.List;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.json.simple.parser.ParseException;
 
-import com.project3.utils.test.TestChecker;
-import com.project3.utils.test.TestQuestion;
-import com.project3.utils.test.TestReader;
+import com.project3.poi.test.controllers.TestChecker;
+import com.project3.test.models.TestQuestion;
+import com.project3.test.utils.TestReader;
 
 public class Main {
 
