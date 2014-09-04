@@ -36,7 +36,7 @@ public class TestChecker {
 //			resultMap = DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx.getParagraphs(),  o.getProperties());
 //			break;
 		case MATCH:
-			resultMap = DocumentPropertyChecker.checkMatchQuestion(docx.getParagraphs(), question);
+			resultMap = DocumentPropertyChecker.checkStringsInParagraphs(docx.getParagraphs(), question);
 //			break;
 //		case DOCUMENT:
 //			resultMap = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties());

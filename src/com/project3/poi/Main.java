@@ -16,7 +16,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		File jsonFile = new File("test_questions/1.json");
-		File docxFile = new File("docx/resume_only.docx");
+		File docxFile = new File("docx/2runs.docx");
 		XWPFDocument docx;
 		
 		try {
