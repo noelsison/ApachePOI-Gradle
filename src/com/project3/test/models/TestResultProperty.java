@@ -3,7 +3,7 @@ package com.project3.test.models;
 public class TestResultProperty {
 
 	private String name, value;
-	private int numCorrect, total;
+	private int score, total;
 
 	public TestResultProperty(String name) {
 		this.name = name;
@@ -30,16 +30,16 @@ public class TestResultProperty {
 		this.value = value;
 	}
 
-	public int getNumCorrect() {
-		return numCorrect;
+	public int getScore() {
+		return score;
 	}
 
-	public void setNumCorrect(int numCorrect) {
-		this.numCorrect = numCorrect;
+	public void setScore(int numCorrect) {
+		this.score = numCorrect;
 	}
 	
-	public void addNumCorrect(int increment) {
-		this.numCorrect += increment;
+	public void addScore(int increment) {
+		this.score += increment;
 	}
 
 	public int getTotal() {

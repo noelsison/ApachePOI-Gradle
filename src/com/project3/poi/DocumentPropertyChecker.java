@@ -7,6 +7,7 @@
 package com.project3.poi;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,78 +25,76 @@ import com.project3.test.models.TestResultProperty;
  */
 public class DocumentPropertyChecker {
     
-//    public static Map<String, HashMap> checkIfStringsExistInParagraph(XWPFParagraph p, List<String> sl) {
-//        Map<String, HashMap> results = new HashMap();
-//        for (String s: sl) {
-//            results.put(s, new HashMap());
-//            results.get(s).put("EXISTS", p.getParagraphText().contains(s));
-//        }
-//        return results;
-//    }
-    
 	static void print(String s) {
 		System.out.println(s);
 	}
     
-    public static List<TestResultItem> checkParagraphs(List<XWPFParagraph> paragraphs, TestQuestion question) {
+	/**
+	 * Returns results for MATCH-type questions (if string exists in any of the paragraphs)
+	 * @param paragraphs paragraphs to be checked
+	 * @param question MATCH-type question
+	 * @return
+	 */
+    public static List<TestResultItem> checkMatchQuestion(List<XWPFParagraph> paragraphs, TestQuestion question) {
     	print("$ Checking paragraphs for question " + question.getQuestionId());
-    	
+        List<TestResultItem> results = new ArrayList<TestResultItem>();
+        List<String> strings = question.getStrings();
+        
+        // Find which paragraph contains the string
+        for (String string : strings) {
+        	print("--- Checking for string " + string);
+        	TestResultItem resultItem = new TestResultItem(string);
+        	Iterator<XWPFParagraph> iterator = paragraphs.iterator();
+        	
+        	// Check remaining paragraphs while string is not found
+        	while (iterator.hasNext() && !resultItem.exists()) {
+        		XWPFParagraph paragraph = iterator.next();
+        		print("\t\tChecking string in paragraph " + paragraph.getText());
+        		boolean exists = paragraph.getText().contains(string);
+        		resultItem.setExists(exists);
+        	}
+        	
+        	results.add(resultItem);
+        }
+        
+        return results;
+    }
+
+    /**
+     * Returns results for RUN-type questions (if strings that may be split into runs have specified properties)
+     * @param paragraphs paragraphs to be checked
+     * @param question RUN-type question
+     * @return
+     */
+    public static List<TestResultItem> checkRunQuestion(List<XWPFParagraph> paragraphs, TestQuestion question) {
+    	print("$ Checking paragraphs for question " + question.getQuestionId());
     	List<TestResultItem> results = new ArrayList<TestResultItem>();
-    	Iterator<String> strings = question.getStrings().iterator();
-    	Map<String, String> properties = question.getProperties();
     	
-    	for (XWPFParagraph paragraph : paragraphs) {
-    		print("\t---START paragraph");
-    		boolean goToNext = false;
+    	Map<String, String> questionProperties = question.getProperties();
+    	List<String> strings = question.getStrings();
+    	
+    	// Find which paragraph contains the string
+    	for (String string : strings) {
+    		print("\t---Checking for string "+ string);
+    		TestResultItem resultItem = new TestResultItem(string);    		
+    		Iterator<XWPFParagraph> iterator = paragraphs.iterator();
     		
-    		while (strings.hasNext() && !goToNext) {
-    			String string = strings.next();
-    			print("\t---Checking paragraph for string "+ string);
-        		if (paragraph.getParagraphText().contains(string)) {
-        			print("\t\tParagraph contains string");
-	    			TestResultItem resultItem = checkRunProperties(paragraph.getRuns(), string, properties);
-	    			results.add(resultItem);
-	    			goToNext = true;
+    		// Check remaining paragraphs while string is not found
+    		while (iterator.hasNext() && !resultItem.exists()) {
+    			print("\t---START paragraph");
+        		XWPFParagraph paragraph = iterator.next();
+    			boolean exists = paragraph.getText().contains(string);
+    			resultItem.setExists(exists);
+    			
+    			// If paragraph contains string, check properties of the runs in this paragraph
+    			if (exists) {
+    				resultItem.setProperties(checkRunProperties(paragraph.getRuns(), string, questionProperties));
     			}
+    			print("\t---END paragraph");
     		}
-    		print("\t---END paragraph");
     	}
     	
     	return results;
-    }
-    
-    // Checking the runs, count if all instances contain the said formating
-    public static List<TestResultItem> checkParagraph(XWPFParagraph paragraph, String string, Map<String, String> questionProperties) {
-//    	print("--- Checking paragraph for question " + question.getQuestionId());
-//    	TestResultItem result = new TestResultItem(string);
-    	List<TestResultItem> results = new ArrayList<TestResultItem>();
-//    	List<XWPFRun> runs = paragraph.getRuns();
-//    	
-////    	List<String> sl = question.getStrings();
-////    	Map<String, String> questionProperties = question.getProperties();
-//    	
-//    	for (String string : sl ) {
-//    		print("### For string " +string);
-//    		
-////    		results.add(resultItem);
-//    	}
-//    	
-    	// TODO where to add to total
-        
-//        //Count only runs which are not empty for scoring
-//        int total_runs = 0;
-//        for (XWPFRun r : rl) {
-//            if (!r.toString().isEmpty()) {
-//                total_runs++;
-//            }
-//        }
-//        //Transform results to score
-//        for (String s : sl) {
-//            for (String property : properties.keySet()) {
-//            	results.get(s).getProperty(property).setTotal(total_runs);
-//            }
-//        }
-        return results;
     }
     
     /**
@@ -105,104 +104,80 @@ public class DocumentPropertyChecker {
      * @param questionProperties set of formatting properties to check in the string
      * @return TestResultItem
      */
-    public static TestResultItem checkRunProperties(List<XWPFRun> runs, String string, Map<String, String> questionProperties) {
-    	print("\t\tBegin checking runs");
-    	TestResultItem resultItem = new TestResultItem(string);
+    private static Map<String, TestResultProperty> checkRunProperties(List<XWPFRun> runs, String string, Map<String, String> questionProperties) {
+    	print("\t\tParagraph contains string. Begin checking runs");
+    	Map<String, TestResultProperty> resultProperties = new HashMap<String, TestResultProperty>();
     	
     	for (XWPFRun run : runs) {
-			print("\t\tChecking run \"" + run.getText(0) + "\"");
-			// skip spaces or empty strings
-			if (run.toString().trim().isEmpty())
+			print("\t\tChecking properties of run \"" + run.getText(0) + "\"");
+			// Skip spaces or empty strings
+			if (run == null || run.toString().trim().isEmpty())
 				continue;
 
-			print("\t\tChecking run properties of " + run.getText(0));
-			// get run properties and compare with question properties
+			// Get run properties and compare with question properties
 			for (Map.Entry<String, String> correctProperty : questionProperties
 					.entrySet()) {
 				String propertyName = correctProperty.getKey();
-				String correctValue = correctProperty.getValue();
-
 				String runValue = getRunProperty(run, propertyName);
+				
+				// Save run property as result property and update total
 				TestResultProperty runProperty = new TestResultProperty(
 						propertyName, runValue);
 				runProperty.addTotal(1);
+				
 				print("\t\tRun property is " + propertyName + "=" + runValue
 						+ "\t" + "Correct property is " + propertyName + "="
-						+ correctValue);
+						+ correctProperty.getValue());
 
-				if (runValue.equalsIgnoreCase(correctValue)) {
+				// Add score if run matches question property
+				if (runValue.equalsIgnoreCase(correctProperty.getValue())) {
 					print("\t\tRun property is correct");
-					runProperty.addNumCorrect(1);
+					runProperty.addScore(1);
 				}
 
-				resultItem.setProperty(runProperty);
+				// Add property to result
+				resultProperties.put(runProperty.getName(), runProperty);
 				print("\t\tSave result");
 			}
 		}
     	
-    	return resultItem;
+    	return resultProperties;
     }
     
+    private static TestResultProperty checkIfParagraphHasProperty(XWPFParagraph p, String propertyName, String correctValue) {
+    	TestResultProperty resultProperty = getParagraphProperty(p, propertyName);
+    	resultProperty.addTotal(1);
+    	
+    	System.out.println("***** COMPARING VALUES for property " + propertyName);
+    	System.out.println("\t\t"+correctValue +"\tvs\t"+resultProperty.getValue());
+    	if (resultProperty.getValue().equalsIgnoreCase(correctValue)) {
+    		resultProperty.addScore(1);
+    	}
+    	
+    	return resultProperty;
+    }
     
-    
+    private static TestResultProperty getParagraphProperty(XWPFParagraph p, String propertyName) {
+        String resultValue = "";
+        
+        switch (propertyName) {
+        	case "LINE SPACING":
+        		XWPFParagraphClone pc = new XWPFParagraphClone(p.getCTP(), p.getBody());
+                resultValue = (pc.getCTSpacing(false).getLine().floatValue()/240) + "";
+        	case "NUMBERING FORMAT":
+        		resultValue = p.getNumFmt();
+            case "ALIGN":
+            	resultValue = p.getAlignment().toString();
+            default:
+            	System.out.println("Property " + propertyName +  " does not exist!");
+                resultValue = "";
+            
+        }
+        
+    	TestResultProperty resultProperty = new TestResultProperty(propertyName, resultValue);
+        return resultProperty;
+    }
     /*
-    // check for strings that span whole paragraphs
-    public static Map<String, TestResultItem> checkRunPropertiesOfParagraphs(List<XWPFParagraph> pl, ArrayList<String> sl, Map<String, String> properties) {
-        Map<String, TestResultItem> results = new HashMap<>(), 
-                             			tempMap = new HashMap<>();
-        ArrayList<String> tempList;
-        String removeString = "";
-        
-        //Initialize results
-        for (String s: sl) {
-        	results.put(s, new TestResultItem(s));
-        	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestResultProperty(property));
-        	}
-        }
-        
-        for (XWPFParagraph p : pl) {
-            for (String s : sl) {
-                tempMap = null;
-                //Will fail on typos, but pass on extra elements before or after string of interest
-                //Need to change for typo toleration and exactness?
-                if (p.getParagraphText().contains(s))
-                {
-                    tempList = new ArrayList();
-                    tempList.add(s);
-                    tempMap = checkPropertiesofParagraphRuns(p, tempList, properties);
-                    results.put(s, tempMap.get(s));
-                    removeString = s;
-                    break;
-                }
-            }
-            //Remove string if it has been evaluated
-            if (tempMap != null) {
-                sl.remove(removeString);
-            }
-        }
-        return results;
-    }
-    public static Boolean checkIfParagraphHasProperty(XWPFParagraph p, String property, String value) {
-        try {
-            switch (property) {
-                case "LINE SPACING":
-                    XWPFParagraphClone pc;
-                    pc = new XWPFParagraphClone(p.getCTP(), p.getBody());
-                    return pc.getCTSpacing(false).getLine().floatValue()/240 == Float.parseFloat(value);
-                case "NUMBERING FORMAT":
-                    return p.getNumFmt().equalsIgnoreCase(value);
-                case "ALIGN":
-                    return p.getAlignment().toString().equalsIgnoreCase(value);
-                default:
-                    System.out.println("Property " + property +  " does not exist!");
-                    return false;
-            }
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
     //single paragraph
     public static Map<String, TestResultItem> checkPropertiesofParagraph(XWPFParagraph p, String s, Map<String, String> properties) {
         List<XWPFRun> rl = p.getRuns();

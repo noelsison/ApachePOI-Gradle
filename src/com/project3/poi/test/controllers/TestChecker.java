@@ -27,7 +27,7 @@ public class TestChecker {
 		
 		switch (question.getType()) {
 		case RUN:
-			resultMap = DocumentPropertyChecker.checkParagraphs(docx.getParagraphs(), question);
+			resultMap = DocumentPropertyChecker.checkRunQuestion(docx.getParagraphs(), question);
 			break;
 //		case PARAGRAPH:
 //			resultMap = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(),  o.getProperties());
@@ -35,8 +35,8 @@ public class TestChecker {
 //		case ALL_PARAGRAPHS:
 //			resultMap = DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx.getParagraphs(),  o.getProperties());
 //			break;
-//		case MATCH:
-//			resultMap = DocumentPropertyChecker.checkIfStringExistsInParagraphs(docx.getParagraphs(), o.getStrings());
+		case MATCH:
+			resultMap = DocumentPropertyChecker.checkMatchQuestion(docx.getParagraphs(), question);
 //			break;
 //		case DOCUMENT:
 //			resultMap = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties());
