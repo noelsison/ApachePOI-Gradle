@@ -1,4 +1,4 @@
-package com.project3.utils.test;
+package com.project3.test.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,11 +7,11 @@ import java.util.Map;
 public class TestQuestion {
 	
 	private String questionId;
-	private QuestionType type;
+	private TestQuestionType type;
 	private ArrayList<String> strings;
 	private Map<String, String> properties;
 	
-	public TestQuestion (String name, QuestionType type) {
+	public TestQuestion (String name, TestQuestionType type) {
 		this.questionId = name;
 		this.type = type;
 		this.strings = new ArrayList<String>();
@@ -60,7 +60,7 @@ public class TestQuestion {
 		return questionId;
 	}
 
-	public QuestionType getType() {
+	public TestQuestionType getType() {
 		return type;
 	}
 }

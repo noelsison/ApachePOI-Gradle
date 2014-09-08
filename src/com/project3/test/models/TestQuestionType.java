@@ -1,5 +1,5 @@
-package com.project3.utils.test;
+package com.project3.test.models;
 
-public enum QuestionType {
+public enum TestQuestionType {
 	RUN, PARAGRAPH, MATCH, DOCUMENT, ALL_PARAGRAPHS, PICTURE, TABLE_CONTENT
 }

@@ -1,4 +1,4 @@
-package com.project3.utils.test;
+package com.project3.poi.test.controllers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
-import com.project3.utils.poi.DocumentPropertyChecker;
+import com.project3.poi.DocumentPropertyChecker;
+import com.project3.test.models.TestQuestion;
+import com.project3.test.models.TestQuestionResult;
 
 public class TestChecker {
 	

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.project3.utils.poi;
+package com.project3.poi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +22,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 
-import com.project3.utils.test.TestQuestionProperty;
-import com.project3.utils.test.TestQuestionResult;
+import com.project3.test.models.TestQuestionProperty;
+import com.project3.test.models.TestQuestionResult;
 
 /**
  * Make this class read from XML files that contain the formatted "question"

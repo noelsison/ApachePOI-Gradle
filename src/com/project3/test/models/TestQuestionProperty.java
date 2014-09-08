@@ -1,4 +1,4 @@
-package com.project3.utils.test;
+package com.project3.test.models;
 
 public class TestQuestionProperty {
 	private String name, value;
