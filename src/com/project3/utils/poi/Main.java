@@ -2,30 +2,34 @@ package com.project3.utils.poi;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.TestXWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.json.simple.parser.ParseException;
 
 import com.project3.utils.test.TestChecker;
+import com.project3.utils.test.TestQuestion;
 import com.project3.utils.test.TestReader;
 
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		TestReader tr = new TestReader("C:\\Users\\Noel\\git\\ApachePOI-Gradle\\test_questions\\2.json");
-		System.out.println(tr.getTestQuestionList().toString());
+		File jsonFile = new File("test_questions/2.json");
+		File docxFile = new File("docx/test_2.docx");
 		TestXWPFDocument docx;
 		try {
-			docx = new TestXWPFDocument(new FileInputStream(new File("C:\\Users\\Noel\\git\\ApachePOI-Gradle\\docx\\test_2.docx")));
-			TestChecker.checkAllQuestions(docx, tr.getTestQuestionList());
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			List<TestQuestion> testQuestions = TestReader.parseJSONQuestions(jsonFile.getAbsolutePath());
+			
+			System.out.println("Name\tType\tMustPass\tStrings\tProperties");
+			
+			for (TestQuestion question : testQuestions) {
+				System.out.println(question);
+			}
+
+			docx = new TestXWPFDocument(new FileInputStream(docxFile));
+			TestChecker.checkAllQuestions(docx, testQuestions);
+		} catch (IOException| ParseException e) {
 			e.printStackTrace();
 		}
 	}

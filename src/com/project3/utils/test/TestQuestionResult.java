@@ -32,9 +32,16 @@ public class TestQuestionResult {
 		}
 		return null;
 	}
+
 	@Override
-  public String toString() {
-    return "(string=" + string + ", exists=" + exists + ", properties="
-        + properties +")";
-  }
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		//		sb.append("Text\tExists\tProperties\n");
+		sb.append(string).append("\t").append(exists).append("\t");
+		for (TestQuestionProperty property : properties) {
+			sb.append(property.getName()).append("=").append(property.getValue()).append("\t").append(property.getCorrect()).append("\t").append(property.getTotal()).append("\n\t\t");
+		}
+		//		sb.append("\n");
+		return sb.toString();
+	}
 }

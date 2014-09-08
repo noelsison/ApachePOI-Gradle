@@ -5,6 +5,10 @@ public class TestQuestionProperty {
 	private int correct = 0, 
 			    total = 0;
 
+	public TestQuestionProperty (String name) {
+		this.name = name;
+	}
+
 	public TestQuestionProperty (String name, String value) {
 		this.name = name;
 		this.value = value;

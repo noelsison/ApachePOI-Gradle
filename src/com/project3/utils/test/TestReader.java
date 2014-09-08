@@ -14,80 +14,80 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class TestReader {
-	private JSONParser parser = new JSONParser();
-	private List<JSONObject> jsonQuestionList = new ArrayList<JSONObject>();
-	private List<TestQuestion> testQuestionList = new ArrayList<TestQuestion>();
+
+	private static final String RUN = "RUN";
+	private static final String PARAGRAPH = "PARAGRAPH";
+	private static final String MATCH = "MATCH";
+	private static final String ALL_PARAGRAPHS = "ALL PARAGRAPHS";
+	private static final String DOCUMENT = "DOCUMENT";
+	private static final String PICTURE = "PICTURE";
+    private static final String TABLE_CONTENT = "TABLE CONTENT";
 	
-	public TestReader (String fileName) {
-		try {
-			System.out.println("Opening JSON file: " + fileName);
-			JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(fileName));
-			System.out.println("Opened Test: " + jsonObject.get("name"));
-			readJSONQuestions(jsonObject);
-			makeTestQuestions(jsonObject);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public static List<TestQuestion> parseJSONQuestions(String filename) throws FileNotFoundException, IOException, ParseException {
+		System.out.println("Opening JSON file: " + filename);
+		List<TestQuestion> questions = new ArrayList<TestQuestion>();
+		
+		JSONParser parser = new JSONParser(); 
+		JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(
+				filename));
+		
+		System.out.println("Opened Test: " + jsonObject.get("name"));
+		Iterator<JSONObject> jsonQuestions = ((JSONArray) jsonObject.get("questions")).iterator();
+		
+		// Create TestQuestion from JSON question object then add to list
+		while (jsonQuestions.hasNext()) {
+			TestQuestion question = createQuestion(jsonQuestions.next());
+			questions.add(question);
 		}
+		
+		System.out.println("Generated: " + questions.size() + " testQuestionObject(s).");
+		return questions;
 	}
 
-	public List<TestQuestion> getTestQuestionList() {
-		return testQuestionList;
-	}
-	
-	private void readJSONQuestions(JSONObject jsonObject) {
-		JSONArray questions = (JSONArray) jsonObject.get("questions");
-		Iterator<JSONObject> iter = questions.iterator();
-		int questionsRead = 0;
-		while (iter.hasNext()) {
-			jsonQuestionList.add(iter.next());
-			questionsRead++;
-		}
-		System.out.println("Detected: " + questionsRead + " question(s).");
-	}
-	
-	private void makeTestQuestions(JSONObject jsonObject) {
-		JSONArray questions = (JSONArray) jsonObject.get("questions"), 
-				  jsonStrings, 
-				  jsonProperties;
-		Iterator<JSONObject> jsonQuestionsIterator = questions.iterator(),
-							 jsonPropertiesIterator;
-		JSONObject jsonQuestion, 
-				   jsonProperty;
-		TestQuestion tempTestQuestion;
-		ArrayList<String> tempStrings;
-		HashMap<String, String> tempProperties;
-		int testQuestionsGenerated = 0;
+	private static TestQuestion createQuestion(JSONObject jsonQuestion) {
+		// Get json question properties
+		String questionId = jsonQuestion.get("name").toString();
+		QuestionType type = getQuestionType(jsonQuestion.get("type").toString());
+		JSONArray jsonStrings = (JSONArray) jsonQuestion.get("strings");
+		JSONArray jsonProperties = (JSONArray) jsonQuestion.get("properties");
 		
-		while (jsonQuestionsIterator.hasNext()) {
-			jsonQuestion = jsonQuestionsIterator.next();
-			tempTestQuestion = new TestQuestion(jsonQuestion.get("name").toString(), jsonQuestion.get("type").toString(), jsonQuestion.get("mustPass").toString());
-			// Strings
-			jsonStrings = (JSONArray) jsonQuestion.get("strings");
-			tempStrings = new ArrayList<String>();
-			for (Object o : jsonStrings) {
-				tempStrings.add(o.toString());
-			}
-			tempTestQuestion.setStrings(tempStrings);
-			// Properties
-			jsonProperties = (JSONArray) jsonQuestion.get("properties");
-			tempProperties = new HashMap<String, String>();
-			jsonPropertiesIterator = jsonProperties.iterator();
-			while (jsonPropertiesIterator.hasNext()) {
-				jsonProperty = jsonPropertiesIterator.next();
-				tempProperties.put(jsonProperty.get("name").toString(), jsonProperty.get("value").toString());
-			}
-			tempTestQuestion.setProperties(tempProperties);
-			
-			testQuestionList.add(tempTestQuestion);
-			testQuestionsGenerated++;
+		// Create test question object
+		TestQuestion question = new TestQuestion(questionId, type);
+		
+		// Add strings to question
+		for (Object o : jsonStrings) {
+			question.addString(o.toString());
 		}
-		System.out.println("Generated: " + testQuestionsGenerated + " testQuestionObject(s).");
+		
+		// Add properties to question 
+		Iterator<JSONObject> jsonPropertiesIterator = jsonProperties.iterator();
+		while (jsonPropertiesIterator.hasNext()) {
+			JSONObject jsonProperty = jsonPropertiesIterator.next();
+			question.setProperty(jsonProperty.get("name").toString(), jsonProperty.get("value").toString());
+		}
+			
+		return question;
+	}
+
+	// Convert string constants from file to enum constants for TestQuestion class
+	public static QuestionType getQuestionType(String type) {
+		switch (type) {
+		case RUN:
+			return QuestionType.RUN;
+		case PARAGRAPH:
+			return QuestionType.PARAGRAPH;
+		case DOCUMENT:
+			return QuestionType.DOCUMENT;
+		case MATCH:
+			return QuestionType.MATCH;
+		case ALL_PARAGRAPHS:
+			return QuestionType.ALL_PARAGRAPHS;
+		case PICTURE:
+            return QuestionType.PICTURE;
+        case TABLE_CONTENT:
+              return QuestionType.TABLE_CONTENT;
+		}
+		
+		return QuestionType.RUN;
 	}
 }

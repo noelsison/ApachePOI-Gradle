@@ -5,14 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TestQuestion {
-	private String name, type, mustPass;
+	
+	private String questionId;
+	private QuestionType type;
 	private ArrayList<String> strings;
 	private Map<String, String> properties;
 	
-	public TestQuestion (String name, String type, String mustPass) {
-		this.name = name;
+	public TestQuestion (String name, QuestionType type) {
+		this.questionId = name;
 		this.type = type;
-		this.mustPass = mustPass;
+		this.strings = new ArrayList<String>();
+		this.properties = new HashMap<String, String>();
 	}
 	
 	public ArrayList<String> getStrings() {
@@ -26,24 +29,38 @@ public class TestQuestion {
 	public Map<String, String> getProperties() {
 		return properties;
 	}
-
-	public void setProperties(HashMap<String, String> properties) {
-		this.properties = properties;
+	
+	public void addString(String string) {
+		this.strings.add(string);
+	}
+	
+	public boolean hasProperty(String key) {
+		return this.properties.containsKey(key);
+	}
+	
+	public String getProperty(String key) {
+		return this.properties.get(key);
+	}
+	
+	public void setProperty(String key, String value) {
+		this.properties.put(key, value);
 	}
 	
 	public String toString() {
-		return "Name: " + this.name + ", Type: " + this.type + ", Must Pass: " + this.mustPass + ", Strings: " + this.strings + ", Properties: " + this.properties;
+		StringBuffer sb = new StringBuffer();
+		sb.append(questionId).append("\t").append(type).append("\t").append("\t").append(strings).append("\t");
+		for (Map.Entry<String, String> entry : properties.entrySet()) {
+			sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\t");
+		}
+		
+		return sb.toString();
 	}
 
-	public String getName() {
-		return name;
+	public String getQuestionId() {
+		return questionId;
 	}
 
-	public String getType() {
+	public QuestionType getType() {
 		return type;
-	}
-
-	public String getMustPass() {
-		return mustPass;
 	}
 }

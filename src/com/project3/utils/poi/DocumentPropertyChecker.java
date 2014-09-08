@@ -6,13 +6,11 @@
 
 package com.project3.utils.poi;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHyperlink;
 import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
@@ -32,10 +30,43 @@ import com.project3.utils.test.TestQuestionResult;
  * @author Noel
  */
 public class DocumentPropertyChecker {
-    
+
+    public static Map<String, HashMap> checkIfStringsExistInParagraph(XWPFParagraph p, List<String> sl) {
+        Map<String, HashMap> results = new HashMap();
+        for (String s: sl) {
+            results.put(s, new HashMap());
+            results.get(s).put("EXISTS", p.getParagraphText().contains(s));
+        }
+        return results;
+    }
     /**
      * Returns true if XWPFRun has the correct value for the given property
      */
+    public static String getRunProperty(XWPFRun r, String property) {
+        try {
+            switch (property) {
+                case "COLOR":
+                    return r.getColor();
+                case "FONT FAMILY":
+                    return r.getFontFamily();
+                case "FONT SIZE":
+                    return r.getFontSize() + "";
+                case "BOLD":
+                    return r.isBold() +"";
+                case "ITALIC":
+                    return r.isItalic()+"";
+                case "STRIKETHROUGH":
+                    return r.isStrike()+"";
+                default:
+                    System.out.println("Property " + property +  " does not exist!");
+                    return "NIL";
+            }
+        }
+        catch (NullPointerException e) {
+            return "NIL";
+        }
+    }
+    
     public static Boolean checkIfRunHasProperty(XWPFRun r, String property, String value) {
         try {
             switch (property) {
@@ -74,13 +105,16 @@ public class DocumentPropertyChecker {
         
         //Initialize results
         for (String s: sl) {
+//        	System.out.println("### For string " + s);
         	results.put(s, new TestQuestionResult(s));
         	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+//        		System.out.println("\t\tAdd test question property "+property);
+        		results.get(s).getProperties().add(new TestQuestionProperty(property));
         	}
         }
         //Check first if elements in sl are in p
         for (String s: sl) {
+//        	System.out.println("\t\tExists in paragraph");
         	results.get(s).setExists(p.getParagraphText().contains(s));
         }
 
@@ -90,13 +124,18 @@ public class DocumentPropertyChecker {
             if (r.toString().isEmpty()) {
                 continue;
             }
+            
+//            System.out.println("\t\tRun text is "+ r.getText(0));
+            
             for (String s : sl) {
                 //Skip string if it does't exist
                 if (results.get(s).isExists()) {
+//                	System.out.println("\t\tChecking run properties");
                     //For each property, check if it applies to the run
                     for (String property : properties.keySet()) {
-                        if (checkIfRunHasProperty(r, property, properties.get(property)))
-                        {
+                    	System.out.println("\t\t\t"+property+"="+properties.get(property)+" vs "+getRunProperty(r,property));
+                        if (checkIfRunHasProperty(r, property, properties.get(property))) {
+                        	results.get(s).getProperty(property).setValue(getRunProperty(r,property));
                         	results.get(s).getProperty(property).setCorrect(results.get(s).getProperty(property).getCorrect() + 1);
                         }
                     }
