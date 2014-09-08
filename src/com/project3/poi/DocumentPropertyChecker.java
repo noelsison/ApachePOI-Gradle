@@ -22,8 +22,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 
-import com.project3.test.models.TestQuestionProperty;
-import com.project3.test.models.TestQuestionResult;
+import com.project3.test.models.TestResultProperty;
+import com.project3.test.models.TestResultItem;
 
 /**
  * Make this class read from XML files that contain the formatted "question"
@@ -99,17 +99,17 @@ public class DocumentPropertyChecker {
     /**
      * Check all XWPFRun in a single paragraph using checkIfRunHasProperty.
      */
-    public static Map<String, TestQuestionResult> checkPropertiesofParagraphRuns(XWPFParagraph p, ArrayList<String> sl, Map<String, String> properties) {
+    public static Map<String, TestResultItem> checkPropertiesofParagraphRuns(XWPFParagraph p, ArrayList<String> sl, Map<String, String> properties) {
         List<XWPFRun> rl = p.getRuns();
-        Map<String, TestQuestionResult> results = new HashMap<String, TestQuestionResult>();
+        Map<String, TestResultItem> results = new HashMap<String, TestResultItem>();
         
         //Initialize results
         for (String s: sl) {
 //        	System.out.println("### For string " + s);
-        	results.put(s, new TestQuestionResult(s));
+        	results.put(s, new TestResultItem(s));
         	for(String property: properties.keySet()) {
 //        		System.out.println("\t\tAdd test question property "+property);
-        		results.get(s).getProperties().add(new TestQuestionProperty(property));
+        		results.get(s).getProperties().add(new TestResultProperty(property));
         	}
         }
         //Check first if elements in sl are in p
@@ -161,17 +161,17 @@ public class DocumentPropertyChecker {
     /**
      * Uses checkPropertiesofParagraphRuns to check XWPFRun properties of a list of paragraphs.
      */
-    public static Map<String, TestQuestionResult> checkRunPropertiesOfParagraphs(List<XWPFParagraph> pl, ArrayList<String> sl, Map<String, String> properties) {
-        Map<String, TestQuestionResult> results = new HashMap<>(), 
+    public static Map<String, TestResultItem> checkRunPropertiesOfParagraphs(List<XWPFParagraph> pl, ArrayList<String> sl, Map<String, String> properties) {
+        Map<String, TestResultItem> results = new HashMap<>(), 
                              			tempMap = new HashMap<>();
         ArrayList<String> tempList;
         String removeString = "";
         
         //Initialize results
         for (String s: sl) {
-        	results.put(s, new TestQuestionResult(s));
+        	results.put(s, new TestResultItem(s));
         	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+        		results.get(s).getProperties().add(new TestResultProperty(property, properties.get(property)));
         	}
         }
         
@@ -225,13 +225,13 @@ public class DocumentPropertyChecker {
     /**
      * Checks the Paragraph properties of a single XWPFParagraph.
      */
-    public static Map<String, TestQuestionResult> checkPropertiesofParagraph(XWPFParagraph p, String s, Map<String, String> properties) {
-        Map<String, TestQuestionResult> results = new HashMap<String, TestQuestionResult>();
+    public static Map<String, TestResultItem> checkPropertiesofParagraph(XWPFParagraph p, String s, Map<String, String> properties) {
+        Map<String, TestResultItem> results = new HashMap<String, TestResultItem>();
         
-        results.put(s, new TestQuestionResult(s));
+        results.put(s, new TestResultItem(s));
         
         for(String property: properties.keySet()) {
-    		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+    		results.get(s).getProperties().add(new TestResultProperty(property, properties.get(property)));
     	}
         
         results.get(s).setExists(p.getParagraphText().contains(s));
@@ -259,16 +259,16 @@ public class DocumentPropertyChecker {
     /**
      * Uses checkPropertiesofParagraph to check a list of paragraphs.
      */
-    public static Map<String, TestQuestionResult> checkPropertiesOfParagraphs(List<XWPFParagraph> pl, ArrayList<String> sl, Map<String, String> properties) {
-    	Map<String, TestQuestionResult> results = new HashMap<>(), 
+    public static Map<String, TestResultItem> checkPropertiesOfParagraphs(List<XWPFParagraph> pl, ArrayList<String> sl, Map<String, String> properties) {
+    	Map<String, TestResultItem> results = new HashMap<>(), 
                              			tempMap = new HashMap<>();
         String removeString = "";
         
       //Initialize results
         for (String s: sl) {
-        	results.put(s, new TestQuestionResult(s));
+        	results.put(s, new TestResultItem(s));
         	for(String property: properties.keySet()) {
-        		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+        		results.get(s).getProperties().add(new TestResultProperty(property, properties.get(property)));
         	}
         }
         //Check first if elements in sl are in p
@@ -300,16 +300,16 @@ public class DocumentPropertyChecker {
     /**
      * Checks the Paragraph properties of a list of XWPFParagraph.
      */
-    public static Map<String, TestQuestionResult> checkPropertiesOfAllParagraphs(List<XWPFParagraph> pl, Map<String, String> properties) {
-    	Map<String, TestQuestionResult> results = new HashMap<>();
+    public static Map<String, TestResultItem> checkPropertiesOfAllParagraphs(List<XWPFParagraph> pl, Map<String, String> properties) {
+    	Map<String, TestResultItem> results = new HashMap<>();
         int paragraph_count = 0;
         
         // Initialize results, properties which were not found in the document are left as 0
         String s = "ALL PARAGRAPHS";
-    	results.put(s, new TestQuestionResult(s));
+    	results.put(s, new TestResultItem(s));
     	
     	for(String property: properties.keySet()) {
-    		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+    		results.get(s).getProperties().add(new TestResultProperty(property, properties.get(property)));
     		results.get(s).getProperty(property).setCorrect(0);
     	}
         
@@ -346,14 +346,14 @@ public class DocumentPropertyChecker {
     /**
      * Checks properties of XWPFDocument. 
      */
-    public static Map<String, TestQuestionResult> checkPropertiesOfDocument(XWPFDocument docx, Map<String, String> properties) {
-    	Map<String, TestQuestionResult> results = new HashMap<>();
+    public static Map<String, TestResultItem> checkPropertiesOfDocument(XWPFDocument docx, Map<String, String> properties) {
+    	Map<String, TestResultItem> results = new HashMap<>();
         // Initialize results, properties which were not found in the document are left as 0
         String s = "DOCUMENT";
-    	results.put(s, new TestQuestionResult(s));
+    	results.put(s, new TestResultItem(s));
     	
     	for(String property: properties.keySet()) {
-    		results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+    		results.get(s).getProperties().add(new TestResultProperty(property, properties.get(property)));
     		results.get(s).setExists(false);
     		results.get(s).getProperty(property).setCorrect(0);
     		results.get(s).getProperty(property).setTotal(0);
@@ -371,12 +371,12 @@ public class DocumentPropertyChecker {
     /**
      * Check if XWPFParagraph text contains the given string 
      */
-    public static Map<String, TestQuestionResult> checkIfStringExistsInParagraphs(List<XWPFParagraph> pl,  ArrayList<String> sl) {
-    	Map<String, TestQuestionResult> results = new HashMap<>();
+    public static Map<String, TestResultItem> checkIfStringExistsInParagraphs(List<XWPFParagraph> pl,  ArrayList<String> sl) {
+    	Map<String, TestResultItem> results = new HashMap<>();
         List<String> removeStrings = new ArrayList<String>();
         // Initialize results, properties which were not found in the document are left as 0
         for (String s: sl) {
-        	results.put(s, new TestQuestionResult(s));
+        	results.put(s, new TestResultItem(s));
         }
         
         for (XWPFParagraph p : pl) {
@@ -406,14 +406,14 @@ public class DocumentPropertyChecker {
     /**
      * For now, sl contains checksums of pictures to identify them
      */
-    public static Map<String, TestQuestionResult> checkPropertiesOfPictures(List<XWPFPictureData> pictureList, ArrayList<String> sl, Map<String, String> properties) {
-        Map<String, TestQuestionResult> results = new HashMap<>();
+    public static Map<String, TestResultItem> checkPropertiesOfPictures(List<XWPFPictureData> pictureList, ArrayList<String> sl, Map<String, String> properties) {
+        Map<String, TestResultItem> results = new HashMap<>();
         String removeString = "";
         // Initialize results, properties which were not found in the document are left as 0
         for (String s: sl) {
-            results.put(s, new TestQuestionResult(s));
+            results.put(s, new TestResultItem(s));
             for(String property: properties.keySet()) {
-              results.get(s).getProperties().add(new TestQuestionProperty(property, properties.get(property)));
+              results.get(s).getProperties().add(new TestResultProperty(property, properties.get(property)));
               results.get(s).setExists(false);
               results.get(s).getProperty(property).setCorrect(0);
               results.get(s).getProperty(property).setTotal(0);
@@ -440,13 +440,13 @@ public class DocumentPropertyChecker {
         
         return results;
     }
-    public static Map<String, TestQuestionResult> checkContentsOfTable(XWPFTable t, ArrayList<String> sl) {
-        Map<String, TestQuestionResult> results = new HashMap<>();
+    public static Map<String, TestResultItem> checkContentsOfTable(XWPFTable t, ArrayList<String> sl) {
+        Map<String, TestResultItem> results = new HashMap<>();
         XWPFTableRow r;
         XWPFTableCell c;
         String removeString = "";
         for (String s: sl) {
-            results.put(s, new TestQuestionResult(s));
+            results.put(s, new TestResultItem(s));
             results.get(s).setExists(false);
         }
         for (int row=0; row<t.getRows().size(); row++) {

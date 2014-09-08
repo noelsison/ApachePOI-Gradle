@@ -1,15 +1,15 @@
 package com.project3.test.models;
 
-public class TestQuestionProperty {
+public class TestResultProperty {
 	private String name, value;
 	private int correct = 0, 
 			    total = 0;
 
-	public TestQuestionProperty (String name) {
+	public TestResultProperty (String name) {
 		this.name = name;
 	}
 
-	public TestQuestionProperty (String name, String value) {
+	public TestResultProperty (String name, String value) {
 		this.name = name;
 		this.value = value;
 	}

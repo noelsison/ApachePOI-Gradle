@@ -8,20 +8,20 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import com.project3.poi.DocumentPropertyChecker;
 import com.project3.test.models.TestQuestion;
-import com.project3.test.models.TestQuestionResult;
+import com.project3.test.models.TestResultItem;
 
 public class TestChecker {
 	
 	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {
 		System.out.println("Text\tExists\tProperties\tCorrect\tTotal");
 		for (TestQuestion o: testQuestionList) {
-			Map<String, TestQuestionResult> resultMap = checkQuestion(docx, o); 
+			Map<String, TestResultItem> resultMap = checkQuestion(docx, o); 
 			System.out.println(resultMapToString(resultMap));			
 		}
 	}
 	
-	public static Map<String, TestQuestionResult> checkQuestion(XWPFDocument docx, TestQuestion o) {
-		Map<String, TestQuestionResult> resultMap = new HashMap<String, TestQuestionResult>();
+	public static Map<String, TestResultItem> checkQuestion(XWPFDocument docx, TestQuestion o) {
+		Map<String, TestResultItem> resultMap = new HashMap<String, TestResultItem>();
 		
 		switch (o.getType()) {
 		case RUN:
@@ -51,10 +51,10 @@ public class TestChecker {
 		return resultMap;
 	}
 	
-	private static String resultMapToString(Map<String, TestQuestionResult> resultMap) {
+	private static String resultMapToString(Map<String, TestResultItem> resultMap) {
 		StringBuffer result = new StringBuffer();
 		
-		for (Map.Entry<String, TestQuestionResult> entry : resultMap.entrySet()) {
+		for (Map.Entry<String, TestResultItem> entry : resultMap.entrySet()) {
 			result.append(entry.getValue().toString()).append("\n");
 		}
 		

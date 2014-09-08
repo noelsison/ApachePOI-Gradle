@@ -3,12 +3,12 @@ package com.project3.test.models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestQuestionResult {
+public class TestResultItem {
 	private String string;
 	private boolean exists = false;
-	private List<TestQuestionProperty> properties = new ArrayList<TestQuestionProperty>();
+	private List<TestResultProperty> properties = new ArrayList<TestResultProperty>();
 	
-	public TestQuestionResult (String s) {
+	public TestResultItem (String s) {
 		this.string = s;
 	}
 	
@@ -18,14 +18,14 @@ public class TestQuestionResult {
 	public void setExists(boolean exists) {
 		this.exists = exists;
 	}
-	public List<TestQuestionProperty> getProperties() {
+	public List<TestResultProperty> getProperties() {
 		return properties;
 	}
-	public void setProperties(List<TestQuestionProperty> properties) {
+	public void setProperties(List<TestResultProperty> properties) {
 		this.properties = properties;
 	}
-	public TestQuestionProperty getProperty(String s) {
-		for (TestQuestionProperty tqp: properties) {
+	public TestResultProperty getProperty(String s) {
+		for (TestResultProperty tqp: properties) {
 			if (tqp.getName().equalsIgnoreCase(s)) {
 				return tqp;
 			}
@@ -38,7 +38,7 @@ public class TestQuestionResult {
 		StringBuffer sb = new StringBuffer();
 		//		sb.append("Text\tExists\tProperties\n");
 		sb.append(string).append("\t").append(exists).append("\t");
-		for (TestQuestionProperty property : properties) {
+		for (TestResultProperty property : properties) {
 			sb.append(property.getName()).append("=").append(property.getValue()).append("\t").append(property.getCorrect()).append("\t").append(property.getTotal()).append("\n\t\t");
 		}
 		//		sb.append("\n");
