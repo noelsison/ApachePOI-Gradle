@@ -1,8 +1,7 @@
 package com.project3.poi.test.controllers;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -15,49 +14,49 @@ public class TestChecker {
 	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {
 		System.out.println("Text\tExists\tProperties\tCorrect\tTotal");
 		for (TestQuestion o: testQuestionList) {
-			Map<String, TestResultItem> resultMap = checkQuestion(docx, o); 
-			System.out.println(resultMapToString(resultMap));			
+			List<TestResultItem> results = checkQuestion(docx, o);
+			System.out.println(resultsToString(results));
 		}
 	}
 	
-	public static Map<String, TestResultItem> checkQuestion(XWPFDocument docx, TestQuestion o) {
-		Map<String, TestResultItem> resultMap = new HashMap<String, TestResultItem>();
+	public static List<TestResultItem> checkQuestion(XWPFDocument docx, TestQuestion question) {
+		List<TestResultItem> resultMap = new ArrayList<TestResultItem>();
 		
-		switch (o.getType()) {
+		switch (question.getType()) {
 		case RUN:
-			resultMap = DocumentPropertyChecker.checkRunPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(), o.getProperties());
+			resultMap = DocumentPropertyChecker.checkRunQuestion(docx.getParagraphs(), question);
 			break;
 		case PARAGRAPH:
-			resultMap = DocumentPropertyChecker.checkPropertiesOfParagraphs(docx.getParagraphs(), o.getStrings(),  o.getProperties());
+			resultMap = DocumentPropertyChecker.checkParagraphQuestion(docx.getParagraphs(), question);
 			break;
 		case ALL_PARAGRAPHS:
-			resultMap = DocumentPropertyChecker.checkPropertiesOfAllParagraphs(docx.getParagraphs(),  o.getProperties());
+			resultMap = DocumentPropertyChecker.checkAllParagraphsQuestion(docx.getParagraphs(),  question);
 			break;
 		case MATCH:
-			resultMap = DocumentPropertyChecker.checkIfStringExistsInParagraphs(docx.getParagraphs(), o.getStrings());
+			resultMap = DocumentPropertyChecker.checkStringsInParagraphs(docx.getParagraphs(), question);
 			break;
 		case DOCUMENT:
-			resultMap = DocumentPropertyChecker.checkPropertiesOfDocument(docx, o.getProperties());
+			resultMap = DocumentPropertyChecker.checkDocumentQuestion(docx, question);
 			break;
 		case PICTURE:
-		  resultMap = DocumentPropertyChecker.checkPropertiesOfPictures(docx.getAllPictures(), o.getStrings(), o.getProperties());
+            resultMap = DocumentPropertyChecker.checkPropertiesOfPictures(docx.getAllPictures(), question.getStrings(), question.getProperties());
             break;
-		case TABLE_CONTENT:
-		    resultMap = DocumentPropertyChecker.checkContentsOfTable(docx.getTables().get(0), o.getStrings());
-		    break;
+        case TABLE_CONTENT:
+            resultMap = DocumentPropertyChecker.checkContentsOfTable(docx.getTables().get(0), question.getStrings());
+            break;
 		default:
 			break;
 		}
 		return resultMap;
 	}
 	
-	private static String resultMapToString(Map<String, TestResultItem> resultMap) {
-		StringBuffer result = new StringBuffer();
+	private static String resultsToString(List<TestResultItem> results) {
+		StringBuffer resultString = new StringBuffer();
 		
-		for (Map.Entry<String, TestResultItem> entry : resultMap.entrySet()) {
-			result.append(entry.getValue().toString()).append("\n");
+		for (TestResultItem resultItem : results) {
+			resultString.append(resultItem.toString()).append("\n");
 		}
 		
-		return result.toString();
+		return resultString.toString();
 	}
 }

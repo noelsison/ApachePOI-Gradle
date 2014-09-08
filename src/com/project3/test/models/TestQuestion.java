@@ -3,6 +3,7 @@ package com.project3.test.models;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class TestQuestion {
 	
@@ -11,8 +12,8 @@ public class TestQuestion {
 	private ArrayList<String> strings;
 	private Map<String, String> properties;
 	
-	public TestQuestion (String name, TestQuestionType type) {
-		this.questionId = name;
+	public TestQuestion (String id, TestQuestionType type) {
+		this.questionId = id;
 		this.type = type;
 		this.strings = new ArrayList<String>();
 		this.properties = new HashMap<String, String>();
@@ -34,16 +35,31 @@ public class TestQuestion {
 		this.strings.add(string);
 	}
 	
+	public Set<String> getPropertyNames() {
+		return this.properties.keySet();
+	}
+	
 	public boolean hasProperty(String key) {
 		return this.properties.containsKey(key);
 	}
 	
 	public String getProperty(String key) {
-		return this.properties.get(key);
+		if (this.properties.containsKey(key))
+			return this.properties.get(key);
+		else
+			return "";
 	}
 	
 	public void setProperty(String key, String value) {
 		this.properties.put(key, value);
+	}
+	
+	public String getQuestionId() {
+		return questionId;
+	}
+
+	public TestQuestionType getType() {
+		return type;
 	}
 	
 	public String toString() {
@@ -54,13 +70,5 @@ public class TestQuestion {
 		}
 		
 		return sb.toString();
-	}
-
-	public String getQuestionId() {
-		return questionId;
-	}
-
-	public TestQuestionType getType() {
-		return type;
 	}
 }

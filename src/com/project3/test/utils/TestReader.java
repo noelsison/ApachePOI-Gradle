@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,8 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.project3.test.models.TestQuestion;
 import com.project3.test.models.TestQuestionType;
+import com.project3.test.models.TestQuestion;
 
 public class TestReader {
 
@@ -23,7 +22,7 @@ public class TestReader {
 	private static final String MATCH = "MATCH";
 	private static final String ALL_PARAGRAPHS = "ALL PARAGRAPHS";
 	private static final String DOCUMENT = "DOCUMENT";
-	private static final String PICTURE = "PICTURE";
+    private static final String PICTURE = "PICTURE";
     private static final String TABLE_CONTENT = "TABLE CONTENT";
 	
 	public static List<TestQuestion> parseJSONQuestions(String filename) throws FileNotFoundException, IOException, ParseException {
@@ -85,10 +84,10 @@ public class TestReader {
 			return TestQuestionType.MATCH;
 		case ALL_PARAGRAPHS:
 			return TestQuestionType.ALL_PARAGRAPHS;
-		case PICTURE:
-            return TestQuestionType.PICTURE;
-        case TABLE_CONTENT:
-              return TestQuestionType.TABLE_CONTENT;
+        case PICTURE:
+          return TestQuestionType.PICTURE;
+      case TABLE_CONTENT:
+            return TestQuestionType.TABLE_CONTENT;
 		}
 		
 		return TestQuestionType.RUN;

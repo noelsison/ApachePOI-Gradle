@@ -1,47 +1,68 @@
 package com.project3.test.models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TestResultItem {
+
 	private String string;
-	private boolean exists = false;
-	private List<TestResultProperty> properties = new ArrayList<TestResultProperty>();
-	
-	public TestResultItem (String s) {
+	private boolean exists;
+	private Map<String, TestResultProperty> properties;
+
+	public TestResultItem(String s) {
 		this.string = s;
+		this.exists = false;
+		this.properties = new HashMap<String, TestResultProperty>();
 	}
 	
-	public boolean isExists() {
+	public boolean isEmpty() {
+		return !exists && properties.isEmpty();
+	}
+
+	public boolean exists() {
 		return exists;
 	}
+
 	public void setExists(boolean exists) {
 		this.exists = exists;
 	}
-	public List<TestResultProperty> getProperties() {
-		return properties;
-	}
-	public void setProperties(List<TestResultProperty> properties) {
-		this.properties = properties;
-	}
-	public TestResultProperty getProperty(String s) {
-		for (TestResultProperty tqp: properties) {
-			if (tqp.getName().equalsIgnoreCase(s)) {
-				return tqp;
-			}
+
+	public TestResultProperty getProperty(String key) {
+		if (properties.containsKey(key)) {
+			return properties.get(key);
+		} else {
+			return new TestResultProperty("");
 		}
-		return null;
 	}
 
-	@Override
+	public void setProperties(Map<String, TestResultProperty> properties) {
+		this.properties = properties;
+	}
+
+	public void setProperty(String name, String value) {
+		TestResultProperty property = new TestResultProperty(name, value);
+		setProperty(property);
+	}
+	
+	public void setProperty(TestResultProperty property) {
+		properties.put(property.getName(), property);
+	}
+	
+	public boolean hasProperty(String name) {
+		return properties.containsKey(name);
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		//		sb.append("Text\tExists\tProperties\n");
 		sb.append(string).append("\t").append(exists).append("\t");
-		for (TestResultProperty property : properties) {
-			sb.append(property.getName()).append("=").append(property.getValue()).append("\t").append(property.getCorrect()).append("\t").append(property.getTotal()).append("\n\t\t");
+		
+		for ( Map.Entry<String, TestResultProperty> entry : properties.entrySet()) {
+			TestResultProperty property = entry.getValue();
+			sb.append(property.getName()).append("=")
+					.append(property.getValue()).append("\t")
+					.append(property.getScore()).append("\t")
+					.append(property.getTotal()).append("\n\t\t");
 		}
-		//		sb.append("\n");
 		return sb.toString();
 	}
 }
