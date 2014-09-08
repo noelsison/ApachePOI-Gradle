@@ -6,12 +6,14 @@
 
 package com.project3.poi;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFPictureData;
@@ -46,12 +48,12 @@ public class DocumentPropertyChecker {
 	 *            MATCH-type question
 	 * @return
 	 */
-	public static List<TestResultItem> checkStringsInParagraphs(
+	public static List<TestResultItem> checkIfStringExists(
 			List<XWPFParagraph> paragraphs, TestQuestion question) {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 		List<String> strings = question.getStrings();
 
-		// Look for each string in each paragraph
+		// Check each string
 		for (String string : strings) {
 			// Find which paragraph contains the string
 			XWPFParagraph paragraph = findParagraphWithString(paragraphs,
@@ -67,21 +69,26 @@ public class DocumentPropertyChecker {
 		return results;
 	}
 
-	// Check the next paragraphs while string is not found
+	/**
+	 * Returns the paragraph that contains the string argument
+	 * @param paragraphs
+	 * @param string
+	 * @return
+	 */
 	private static XWPFParagraph findParagraphWithString(List<XWPFParagraph> paragraphs, String string) {
 		XWPFParagraph paragraph = null;
 		Iterator<XWPFParagraph> iterator = paragraphs.iterator();
 		boolean found = false;
 
+		// Check the next paragraphs while string is not found
 		while (iterator.hasNext() && !found) {
 			paragraph = iterator.next();
 			found = paragraph.getText().contains(string);
 		}
 
-		paragraph = found ? paragraph : null;
 		return paragraph;
 	}
-
+	
 	/**
 	 * Returns results for RUN-type questions (if strings that may be split into
 	 * runs have specified properties)
@@ -98,7 +105,7 @@ public class DocumentPropertyChecker {
 		Map<String, String> questionProperties = question.getProperties();
 		List<String> strings = question.getStrings();
 
-		// Look for each string in each paragraph
+		// Check each string
 		for (String string : strings) {
 			// Find which paragraph contains the string
 			XWPFParagraph paragraph = findParagraphWithString(paragraphs,
@@ -116,6 +123,7 @@ public class DocumentPropertyChecker {
 				resultItem.setProperties(properties);
 			}
 
+			// Add to results
 			results.add(resultItem);
 		}
 
@@ -139,30 +147,30 @@ public class DocumentPropertyChecker {
 			Map<String, String> questionProperties) {
 		Map<String, TestResultProperty> resultProperties = new HashMap<String, TestResultProperty>();
 
+		// Check each run
 		for (XWPFRun run : runs) {
 			// Skip spaces or empty strings
 			if (run == null || run.toString().trim().isEmpty())
 				continue;
 
-			// Get run properties and compare with question properties
+			// Get properties of this run and compare with question properties
 			for (Map.Entry<String, String> correctProperty : questionProperties
 					.entrySet()) {
 				String propertyName = correctProperty.getKey();
 				String runValue = getRunProperty(run, propertyName);
 
-				// Save run property in map and update total
-				TestResultProperty runProperty = resultProperties.containsKey(propertyName) ? resultProperties
+				// Create new or update existing result property for string (update occurs when string has 2 or more runs)
+				TestResultProperty stringProperty = resultProperties.containsKey(propertyName) ? resultProperties
 						.get(propertyName) : new TestResultProperty(propertyName, runValue);
-
-				runProperty.addTotal(1);
 
 				// Add score if run property matches question property
 				if (runValue.equalsIgnoreCase(correctProperty.getValue())) {
-					runProperty.addScore(1);
+					stringProperty.addScore(1);
 				}
 
 				// Add property to result
-				resultProperties.put(runProperty.getName(), runProperty);
+				stringProperty.addTotal(1);
+				resultProperties.put(stringProperty.getName(), stringProperty);
 			}
 		}
 
@@ -170,62 +178,44 @@ public class DocumentPropertyChecker {
 	}
 
 	/**
-	 * Returns result property of paragraph
-	 * @param paragraph the paragraph to be checked
-	 * @param propertyName
+	 * Returns the value of the run property
+	 * @param run
+	 * @param property
 	 * @return
 	 */
-	private static TestResultProperty getParagraphProperty(XWPFParagraph paragraph, String propertyName) {
-		String resultValue = "";
-
-		switch (propertyName) {
-		case "LINE SPACING":
-			XWPFParagraphClone pc = new XWPFParagraphClone(paragraph.getCTP(), paragraph.getBody());
-			resultValue = (pc.getCTSpacing(false).getLine().floatValue() / 240) + "";
-			break;
-		case "NUMBERING FORMAT":
-			resultValue = paragraph.getNumFmt();
-			break;
-		case "ALIGN":
-			resultValue = paragraph.getAlignment().toString();
-			break;
-		default:
-			System.out.println("Property " + propertyName + " does not exist!");
-			resultValue = "";
-			break;
-		}
-
-		TestResultProperty resultProperty = new TestResultProperty(propertyName, resultValue);
-		return resultProperty;
-	}
-
-	
-	/**
-	 * Returns result properties of paragraph based on question properties
-	 * @param paragraph the paragraph to be checked
-	 * @param question TestQuestion object
-	 * @return
-	 */
-	private static Map<String, TestResultProperty> checkParagraphProperties(XWPFParagraph paragraph, TestQuestion question) {
-		Map<String, TestResultProperty> results = new HashMap<String, TestResultProperty>();
-		Map<String, String> questionProperties = question.getProperties();
-
-		// Check properties of this paragraph that are included in question properties 
-		for (Map.Entry<String, String> correctProperty : questionProperties.entrySet()) {
-			// Get property of this paragraph
-			TestResultProperty resultProperty = getParagraphProperty(paragraph, correctProperty.getKey());
-			
-			// Add score if it matches the current question property
-			if (resultProperty.getValue().equalsIgnoreCase(correctProperty.getValue())) {
-				resultProperty.addScore(1);
-			}
-			
-			// Update total and add to result properties
-			resultProperty.addTotal(1);
-			results.put(resultProperty.getName(), resultProperty);
-		}
+	public static String getRunProperty(XWPFRun run, String property) {
+		String runProperty;
 		
-		return results;
+		// For each type of property, check if value is null before converting to string or manipulating its value to avoid NullPointerException except for native types
+		switch (property) {
+			case "COLOR":
+				String color = run.getColor();
+				runProperty = color == null ? "" : color;
+				break;
+			case "FONT FAMILY":
+				String fontFamily = run.getFontFamily();
+				runProperty = fontFamily == null ? "" : fontFamily;
+				break;
+			case "FONT SIZE":
+//				int fontSize = run.getFontSize();
+				runProperty = String.valueOf(run.getFontSize());
+				break;
+			case "BOLD":
+				runProperty = String.valueOf(run.isBold());
+				break;
+			case "ITALIC":
+				runProperty = String.valueOf(run.isItalic());
+				break;
+			case "STRIKETHROUGH":
+				runProperty = String.valueOf(run.isStrike());
+				break;
+			default:
+				System.out.println("Property " + property + " does not exist!");
+				runProperty = "";
+				break;
+			}
+		
+		return runProperty;
 	}
 
 	/**
@@ -238,19 +228,85 @@ public class DocumentPropertyChecker {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 		List<String> strings = question.getStrings();
 		
+		// Check each paragraph identified by the string
 		for (String string : strings) {
+			// Get paragraph that contains the string and set exists if found
 			XWPFParagraph paragraph = findParagraphWithString(pl, string);
 			TestResultItem resultItem = new TestResultItem(string);
 			resultItem.setExists(paragraph != null);
 			
+			// Get paragraph properties
 			if (resultItem.exists()) {
 				resultItem.setProperties(checkParagraphProperties(paragraph, question));
 			}
 			
+			// Add to results
 			results.add(resultItem);
 		}
 
 		return results;
+	}
+	
+	/**
+	 * Returns result properties of paragraph based on question properties
+	 * @param paragraph the paragraph to be checked
+	 * @param question TestQuestion object
+	 * @return
+	 */
+	private static Map<String, TestResultProperty> checkParagraphProperties(XWPFParagraph paragraph, TestQuestion question) {
+		Map<String, TestResultProperty> results = new HashMap<String, TestResultProperty>();
+		Map<String, String> questionProperties = question.getProperties();
+
+		// Check if this paragraph has the properties in the question 
+		for (Map.Entry<String, String> correctProperty : questionProperties.entrySet()) {
+			// Get property of this paragraph
+			TestResultProperty resultProperty = getParagraphProperty(paragraph, correctProperty.getKey());
+			
+			// Add score if it matches the current question property
+			if (resultProperty.getValue().equalsIgnoreCase(correctProperty.getValue())) {
+				resultProperty.addScore(1);
+			}
+			
+			// Update total and add to results
+			resultProperty.addTotal(1);
+			results.put(resultProperty.getName(), resultProperty);
+		}
+		
+		return results;
+	}
+
+	/**
+	 * Returns result property of paragraph
+	 * @param paragraph the paragraph to be checked
+	 * @param propertyName
+	 * @return
+	 */
+	private static TestResultProperty getParagraphProperty(XWPFParagraph paragraph, String propertyName) {
+		String resultValue;
+		// int someValue = 240;
+
+		// For each type of property, check if value is null before converting to string or manipulating its value to avoid NullPointerException except for native types
+		switch (propertyName) {
+		case "LINE SPACING":
+			XWPFParagraphClone pc = new XWPFParagraphClone(paragraph.getCTP(), paragraph.getBody());
+			resultValue = pc == null ? "" : String.valueOf(pc.getCTSpacing(false).getLine().floatValue() / 240);
+			break;
+		case "NUMBERING FORMAT":
+			String numFormat = paragraph.getNumFmt();
+			resultValue = numFormat == null ? "" : numFormat;
+			break;
+		case "ALIGN":
+			ParagraphAlignment alignment = paragraph.getAlignment();
+			resultValue = alignment == null ? "" : alignment.toString();
+			break;
+		default:
+			System.out.println("Property " + propertyName + " does not exist!");
+			resultValue = "";
+			break;
+		}
+
+		TestResultProperty resultProperty = new TestResultProperty(propertyName, resultValue);
+		return resultProperty;
 	}
 
 	/**
@@ -263,79 +319,44 @@ public class DocumentPropertyChecker {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 		Map<String, TestResultProperty> resultProperties = new HashMap<String, TestResultProperty>();
 		
+		// Check properties of all paragraphs
 		for (XWPFParagraph paragraph : paragraphs) {
 			TestResultProperty resultProperty;
 			
-			if (paragraph.getText().isEmpty()) {
+			// Skip spaces or empty paragraphs
+			if (paragraph.getText().trim().isEmpty()) {
 				continue;
 			}
 
+			// Check if this paragraph has all the correct properties
 			for (Map.Entry<String, String> entry : question.getProperties().entrySet()) {
 				String name = entry.getKey();
 				
+				// Create new or update existing result property (since paragraphs have common properties)
 				if (resultProperties.containsKey(name)) {
 					resultProperty = resultProperties.get(name);
 				} else {
 					resultProperty = new TestResultProperty(name, entry.getValue());
 				}
-		
-				if (checkIfParagraphHasProperty(paragraph, name, entry.getValue())) {
+				
+				// Compare properties of this paragraph with question properties and update result if they match
+				TestResultProperty tempProperty = getParagraphProperty(paragraph, name);
+				if (tempProperty.getValue().equalsIgnoreCase(entry.getValue())) {
 					resultProperty.addScore(1);
 				}
 				
+				// Update total and add to results
 				resultProperty.addTotal(1);
 				resultProperties.put(name, resultProperty);
 			}
 		}
 		
+		// Create result item with the evaluated properties 
 		TestResultItem resultItem = new TestResultItem("ALL PARAGRAPHS");
 		resultItem.setExists(true);
 		resultItem.setProperties(resultProperties);
 		results.add(resultItem);
 		return results;
-	}
-
-	/**
-	 * Returns <code>true</code> if paragraph has the correct property
-	 * @param paragraph
-	 * @param propertyName
-	 * @param correctValue
-	 * @return
-	 */
-	private static boolean checkIfParagraphHasProperty(XWPFParagraph paragraph, String propertyName, String correctValue) {
-		boolean hasProperty = false;
-		
-		TestResultProperty resultProperty = getParagraphProperty(paragraph, propertyName);
-		hasProperty = resultProperty.getValue().equalsIgnoreCase(correctValue);
-
-		return hasProperty;
-	}
-
-	/**
-	 * Returns <code>true</code> if document has the correct property
-	 * @param docx
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public static boolean checkIfDocumentHasProperty(XWPFDocument docx, String property, String value) {
-		CTPageMar margin = docx.getDocument().getBody().getSectPr().getPgMar();
-		switch (property) {
-			case "MARGIN TOP":
-				return String.valueOf(margin.getTop().longValue() / 1440).equals(
-						value);
-			case "MARGIN LEFT":
-				return String.valueOf(margin.getLeft().longValue() / 1440).equals(
-						value);
-			case "MARGIN BOTTOM":
-				return String.valueOf(margin.getBottom().longValue() / 1440)
-						.equals(value);
-			case "MARGIN RIGHT":
-				return String.valueOf(margin.getRight().longValue() / 1440).equals(
-						value);
-			default:
-				return false;
-		}
 	}
 
 	/**
@@ -350,19 +371,24 @@ public class DocumentPropertyChecker {
 		
 		Map<String, String> properties = question.getProperties();
 		
+		// Check each question property
 		for (Map.Entry<String, String> correctProperty : properties.entrySet()) {
+			// Get document property
 			String propertyName = correctProperty.getKey();
 			String value = getDocumentProperty(docx, propertyName);
 		
+			// Create result object for this property and update score if it is correct 
 			TestResultProperty resultProperty = new TestResultProperty(propertyName, value);
 			if (resultProperty.getValue().equalsIgnoreCase(correctProperty.getValue())) {
 				resultProperty.addScore(1);
 			}
 			
+			// Update total and addd to results
 			resultProperty.addTotal(1);
 			resultProperties.put(propertyName, resultProperty);
 		}
 
+		// Create result item with the evaluated properties 
 		TestResultItem resultItem = new TestResultItem("DOCUMENT");
 		resultItem.setExists(true);
 		resultItem.setProperties(resultProperties);
@@ -378,67 +404,35 @@ public class DocumentPropertyChecker {
 	 * @return
 	 */
 	private static String getDocumentProperty(XWPFDocument docx, String property) {
+		BigInteger targetMargin;
 		String value = "";
-		CTPageMar margin = docx.getDocument().getBody().getSectPr().getPgMar();
+		// int someNumber = 1440;
+		
+		CTPageMar marginObject = docx.getDocument().getBody().getSectPr().getPgMar();
 
 		switch (property) {
-		case "MARGIN TOP":
-			value = String.valueOf(margin.getTop().longValue() / 1440);
-			break;
-		case "MARGIN LEFT":
-			value = String.valueOf(margin.getLeft().longValue() / 1440);
-			break;
-		case "MARGIN BOTTOM":
-			value = String.valueOf(margin.getBottom().longValue() / 1440);
-			break;
-		case "MARGIN RIGHT":
-			value = String.valueOf(margin.getRight().longValue() / 1440);
-			break;
-		default:
-			value = "";
-			break;
-		}
-		
-		return value;
-	}	
-
-	/**
-	 * Returns the value of the run property
-	 * @param run
-	 * @param property
-	 * @return
-	 */
-	public static String getRunProperty(XWPFRun run, String property) {
-		String runProperty = "";
-		
-		switch (property) {
-			case "COLOR":
-				runProperty = run.getColor();
+			case "MARGIN TOP":
+				targetMargin = marginObject.getTop();
 				break;
-			case "FONT FAMILY":
-				runProperty = run.getFontFamily();
+			case "MARGIN LEFT":
+				targetMargin = marginObject.getLeft();
 				break;
-			case "FONT SIZE":
-				runProperty = run.getFontSize() + "";
+			case "MARGIN BOTTOM":
+				targetMargin = marginObject.getBottom();
 				break;
-			case "BOLD":
-				runProperty = run.isBold() + "";
-				break;
-			case "ITALIC":
-				runProperty = run.isItalic() + "";
-				break;
-			case "STRIKETHROUGH":
-				runProperty = run.isStrike() + "";
+			case "MARGIN RIGHT":
+				targetMargin = marginObject.getRight();
 				break;
 			default:
-				System.out.println("Property " + property + " does not exist!");
-				runProperty = "";
+				targetMargin = new BigInteger("0");
+				value = "";
 				break;
-			}
+		}
 		
-		runProperty = runProperty == null ? "" : runProperty;
-		return runProperty;
+		value = String.valueOf(targetMargin.longValue() / 1440);
+		return value;
 	}
+	
 	//////// REFACTOR THIS TO FOLLOW ABOVE STYLE
 	public static boolean checkIfPictureHasProperty(XWPFPictureData picture, String property, String value) {
       switch (property) {

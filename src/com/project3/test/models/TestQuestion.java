@@ -64,7 +64,7 @@ public class TestQuestion {
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(questionId).append("\t").append(type).append("\t").append("\t").append(strings).append("\t");
+		sb.append(questionId).append("\t").append(type).append("\t").append(strings).append("\t");
 		for (Map.Entry<String, String> entry : properties.entrySet()) {
 			sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\t");
 		}

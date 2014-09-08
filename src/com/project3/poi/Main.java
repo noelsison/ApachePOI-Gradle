@@ -21,8 +21,8 @@ public class Main {
 		
 		try {
 			List<TestQuestion> testQuestions = TestReader.parseJSONQuestions(jsonFile.getAbsolutePath());
-			
-			System.out.println("Name\tType\tMustPass\tStrings\tProperties");
+			System.out.println("----------------- QUESTIONS -----------------");
+			System.out.println("Name\tType\tStrings\tProperties");
 			
 			for (TestQuestion question : testQuestions) {
 				System.out.println(question);

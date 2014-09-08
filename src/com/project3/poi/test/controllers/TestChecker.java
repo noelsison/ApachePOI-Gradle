@@ -12,9 +12,11 @@ import com.project3.test.models.TestResultItem;
 public class TestChecker {
 	
 	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {
+		System.out.println("----------------- RESULTS -----------------");
 		System.out.println("Text\tExists\tProperties\tCorrect\tTotal");
-		for (TestQuestion o: testQuestionList) {
-			List<TestResultItem> results = checkQuestion(docx, o);
+		for (TestQuestion question: testQuestionList) {
+			System.out.println("QUESTION " + question.getQuestionId());
+			List<TestResultItem> results = checkQuestion(docx, question);
 			System.out.println(resultsToString(results));
 		}
 	}
@@ -33,7 +35,7 @@ public class TestChecker {
 			resultMap = DocumentPropertyChecker.checkAllParagraphsQuestion(docx.getParagraphs(),  question);
 			break;
 		case MATCH:
-			resultMap = DocumentPropertyChecker.checkStringsInParagraphs(docx.getParagraphs(), question);
+			resultMap = DocumentPropertyChecker.checkIfStringExists(docx.getParagraphs(), question);
 			break;
 		case DOCUMENT:
 			resultMap = DocumentPropertyChecker.checkDocumentQuestion(docx, question);
