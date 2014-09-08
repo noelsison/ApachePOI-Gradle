@@ -135,6 +135,18 @@
       ]
     },
     {
+      "name": "13",
+      "type": "TABLE CONTENT",
+      "mustPass": "",
+      "strings": [
+        "Charater Reference",
+        "Contact Number",
+        "Juana Ramirez",
+        "0911-111-2222"
+      ],
+      "properties": []
+    },
+    {
       "name": "14",
       "type": "DOCUMENT",
       "mustPass": "",

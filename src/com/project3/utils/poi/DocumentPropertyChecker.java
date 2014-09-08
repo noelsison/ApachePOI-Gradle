@@ -19,6 +19,9 @@ import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 
 import com.project3.utils.test.TestQuestionProperty;
@@ -396,6 +399,30 @@ public class DocumentPropertyChecker {
             }
         }
         
+        return results;
+    }
+    public static Map<String, TestQuestionResult> checkContentsOfTable(XWPFTable t, ArrayList<String> sl) {
+        Map<String, TestQuestionResult> results = new HashMap<>();
+        XWPFTableRow r;
+        XWPFTableCell c;
+        String removeString = "";
+        for (String s: sl) {
+            results.put(s, new TestQuestionResult(s));
+            results.get(s).setExists(false);
+        }
+        for (int row=0; row<t.getRows().size(); row++) {
+            r = t.getRow(row);
+            for (int col=0; col<r.getTableCells().size(); col++) {
+                c = r.getCell(col);
+                for (String s: sl) {
+                    if (s.contains(c.getText())) {
+                      results.get(s).setExists(true);
+                      removeString = s;
+                    }
+                }
+                sl.remove(removeString);
+            }
+        }
         return results;
     }
 }
