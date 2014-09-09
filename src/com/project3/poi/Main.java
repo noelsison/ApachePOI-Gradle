@@ -9,8 +9,8 @@ import org.apache.poi.xwpf.usermodel.TestXWPFDocument;
 import org.json.simple.parser.ParseException;
 
 import com.project3.poi.test.controllers.TestChecker;
+import com.project3.poi.test.controllers.TestReader;
 import com.project3.test.models.TestQuestion;
-import com.project3.test.utils.TestReader;
 
 public class Main {
 
@@ -18,7 +18,7 @@ public class Main {
 		File jsonFile = new File("test_questions/2.json");
 		File docxFile = new File("docx/test_2.docx");
 		TestXWPFDocument docx;
-		
+		TestChecker testChecker;
 		try {
 			List<TestQuestion> testQuestions = TestReader.parseJSONQuestions(jsonFile.getAbsolutePath());
 			System.out.println("----------------- QUESTIONS -----------------");
@@ -29,7 +29,9 @@ public class Main {
 			}
 
 			docx = new TestXWPFDocument(new FileInputStream(docxFile));
-			TestChecker.checkAllQuestions(docx, testQuestions);
+			testChecker = new TestChecker(docx);
+			testChecker.checkAllQuestions(testQuestions);
+			
 		} catch (IOException| ParseException e) {
 			e.printStackTrace();
 		}

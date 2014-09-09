@@ -11,40 +11,56 @@ import com.project3.test.models.TestResultItem;
 
 public class TestChecker {
 	
-	public static void checkAllQuestions(XWPFDocument docx, List<TestQuestion> testQuestionList) {
+	private DocumentPropertyChecker documentChecker;
+	private XWPFDocument document;
+	
+	public TestChecker(XWPFDocument document) {
+		this.document = document;
+		documentChecker = new DocumentPropertyChecker(document);
+	}
+	
+	public void setDocument(XWPFDocument document) {
+		this.document = document;
+	}
+	
+	public XWPFDocument getDocument() {
+		return document;
+	}
+
+	public void checkAllQuestions(List<TestQuestion> testQuestionList) {
 		System.out.println("----------------- RESULTS -----------------");
 		System.out.println("Text\tExists\tProperties\tCorrect\tTotal");
 		for (TestQuestion question: testQuestionList) {
 			System.out.println("QUESTION " + question.getQuestionId());
-			List<TestResultItem> results = checkQuestion(docx, question);
+			List<TestResultItem> results = checkQuestion(question);
 			System.out.println(resultsToString(results));
 		}
 	}
 	
-	public static List<TestResultItem> checkQuestion(XWPFDocument docx, TestQuestion question) {
+	public List<TestResultItem> checkQuestion(TestQuestion question) {
 		List<TestResultItem> resultMap = new ArrayList<TestResultItem>();
 		
 		switch (question.getType()) {
 		case RUN:
-			resultMap = DocumentPropertyChecker.checkRunQuestion(docx.getParagraphs(), question);
+			resultMap = documentChecker.checkRunQuestion(question);
 			break;
 		case PARAGRAPH:
-			resultMap = DocumentPropertyChecker.checkParagraphQuestion(docx.getParagraphs(), question);
+			resultMap = documentChecker.checkParagraphQuestion(question);
 			break;
 		case ALL_PARAGRAPHS:
-			resultMap = DocumentPropertyChecker.checkAllParagraphsQuestion(docx.getParagraphs(),  question);
+			resultMap = documentChecker.checkAllParagraphsQuestion(question);
 			break;
 		case MATCH:
-			resultMap = DocumentPropertyChecker.checkIfStringExists(docx.getParagraphs(), question);
+			resultMap = documentChecker.checkIfStringsExist(question.getStrings());
 			break;
 		case DOCUMENT:
-			resultMap = DocumentPropertyChecker.checkDocumentQuestion(docx, question);
+			resultMap = documentChecker.checkDocumentQuestion(question);
 			break;
 		case PICTURE:
-            resultMap = DocumentPropertyChecker.checkPropertiesOfPictures(docx.getAllPictures(), question);
+            resultMap = documentChecker.checkPropertiesOfPictures(question);
             break;
         case TABLE_CONTENT:
-            resultMap = DocumentPropertyChecker.checkContentsOfTable(docx.getTables().get(0), question.getStrings());
+            resultMap = documentChecker.checkContentsOfTable(question.getStrings());
             break;
 		default:
 			break;

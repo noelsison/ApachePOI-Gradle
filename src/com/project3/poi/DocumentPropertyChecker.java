@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -34,6 +35,20 @@ import com.project3.test.models.TestResultProperty;
  */
 public class DocumentPropertyChecker {
 
+	private XWPFDocument document;
+	
+	public DocumentPropertyChecker(XWPFDocument document) {
+		this.document = document;
+	}
+	
+	public XWPFDocument getDocument() {
+		return document;
+	}
+
+	public void setDocument(XWPFDocument document) {
+		this.document = document;
+	}
+
 	static void print(String s) {
 		System.out.println(s);
 	}
@@ -48,16 +63,13 @@ public class DocumentPropertyChecker {
 	 *            MATCH-type question
 	 * @return
 	 */
-	public static List<TestResultItem> checkIfStringExists(
-			List<XWPFParagraph> paragraphs, TestQuestion question) {
+	public List<TestResultItem> checkIfStringsExist(List<String> strings) {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
-		List<String> strings = question.getStrings();
 
 		// Check each string
 		for (String string : strings) {
 			// Find which paragraph contains the string
-			XWPFParagraph paragraph = findParagraphWithString(paragraphs,
-					string);
+			XWPFParagraph paragraph = findParagraphWithString(string);
 
 			// Create result and set exists to true if string was found in one
 			// of the paragraphs
@@ -75,8 +87,9 @@ public class DocumentPropertyChecker {
 	 * @param string
 	 * @return
 	 */
-	private static XWPFParagraph findParagraphWithString(List<XWPFParagraph> paragraphs, String string) {
+	private XWPFParagraph findParagraphWithString(String string) {
 		XWPFParagraph paragraph = null;
+		List<XWPFParagraph> paragraphs = document.getParagraphs();
 		
 		// Check the next paragraphs while string is not found
 		
@@ -112,7 +125,7 @@ public class DocumentPropertyChecker {
 	 *            RUN-type question
 	 * @return
 	 */
-	public static List<TestResultItem> checkRunQuestion(List<XWPFParagraph> paragraphs, TestQuestion question) {
+	public List<TestResultItem> checkRunQuestion(TestQuestion question) {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 
 		Map<String, String> questionProperties = question.getProperties();
@@ -121,8 +134,7 @@ public class DocumentPropertyChecker {
 		// Check each string
 		for (String string : strings) {
 			// Find which paragraph contains the string
-			XWPFParagraph paragraph = findParagraphWithString(paragraphs,
-					string);
+			XWPFParagraph paragraph = this.findParagraphWithString(string);
 
 			// Paragraph is null if string was not found
 			TestResultItem resultItem = new TestResultItem(string);
@@ -155,9 +167,7 @@ public class DocumentPropertyChecker {
 	 *            set of formatting properties to check in the string
 	 * @return TestResultItem
 	 */
-	private static Map<String, TestResultProperty> checkRunProperties(
-			List<XWPFRun> runs, String string,
-			Map<String, String> questionProperties) {
+	private Map<String, TestResultProperty> checkRunProperties(List<XWPFRun> runs, String string, Map<String, String> questionProperties) {
 		Map<String, TestResultProperty> resultProperties = new HashMap<String, TestResultProperty>();
 
 		// Check each run
@@ -196,9 +206,9 @@ public class DocumentPropertyChecker {
 	 * @param property
 	 * @return
 	 */
-	public static String getRunProperty(XWPFRun run, String property) {
+	public String getRunProperty(XWPFRun run, String property) {
 		String runProperty;
-		
+		 
 		// For each type of property, check if value is null before converting to string or manipulating its value to avoid NullPointerException except for native types
 		switch (property) {
 			case "COLOR":
@@ -222,6 +232,10 @@ public class DocumentPropertyChecker {
 			case "STRIKETHROUGH":
 				runProperty = String.valueOf(run.isStrike());
 				break;
+			case "HYPERLINK":
+//				System.out.println(run.getText(0) + " hyperlink?" + (run instanceof XWPFHyperlinkRun));
+				runProperty = run instanceof XWPFHyperlinkRun ? ((XWPFHyperlinkRun) run).getHyperlink(document).getURL() : "";
+				break;
 			default:
 				System.out.println("Property " + property + " does not exist!");
 				runProperty = "";
@@ -237,20 +251,21 @@ public class DocumentPropertyChecker {
 	 * @param question
 	 * @return
 	 */
-	public static List<TestResultItem> checkParagraphQuestion(List<XWPFParagraph> pl, TestQuestion question) {
+	public List<TestResultItem> checkParagraphQuestion(TestQuestion question) {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 		List<String> strings = question.getStrings();
+		Map<String, String> questionProperties = question.getProperties();
 		
 		// Check each paragraph identified by the string
 		for (String string : strings) {
 			// Get paragraph that contains the string and set exists if found
-			XWPFParagraph paragraph = findParagraphWithString(pl, string);
+			XWPFParagraph paragraph = this.findParagraphWithString(string);
 			TestResultItem resultItem = new TestResultItem(string);
 			resultItem.setExists(paragraph != null);
 			
 			// Get paragraph properties
 			if (resultItem.exists()) {
-				resultItem.setProperties(checkParagraphProperties(paragraph, question));
+				resultItem.setProperties(this.checkParagraphProperties(paragraph, questionProperties));
 			}
 			
 			// Add to results
@@ -266,14 +281,13 @@ public class DocumentPropertyChecker {
 	 * @param question TestQuestion object
 	 * @return
 	 */
-	private static Map<String, TestResultProperty> checkParagraphProperties(XWPFParagraph paragraph, TestQuestion question) {
+	private Map<String, TestResultProperty> checkParagraphProperties(XWPFParagraph paragraph, Map<String, String> questionProperties) {
 		Map<String, TestResultProperty> results = new HashMap<String, TestResultProperty>();
-		Map<String, String> questionProperties = question.getProperties();
 
 		// Check if this paragraph has the properties in the question 
 		for (Map.Entry<String, String> correctProperty : questionProperties.entrySet()) {
 			// Get property of this paragraph
-			TestResultProperty resultProperty = getParagraphProperty(paragraph, correctProperty.getKey());
+			TestResultProperty resultProperty = this.getParagraphProperty(paragraph, correctProperty.getKey());
 			
 			// Add score if it matches the current question property
 			if (resultProperty.getValue().equalsIgnoreCase(correctProperty.getValue())) {
@@ -294,7 +308,7 @@ public class DocumentPropertyChecker {
 	 * @param propertyName
 	 * @return
 	 */
-	private static TestResultProperty getParagraphProperty(XWPFParagraph paragraph, String propertyName) {
+	private TestResultProperty getParagraphProperty(XWPFParagraph paragraph, String propertyName) {
 		String resultValue;
 		// int someValue = 240;
 
@@ -328,9 +342,11 @@ public class DocumentPropertyChecker {
 	 * @param question
 	 * @return
 	 */
-	public static List<TestResultItem> checkAllParagraphsQuestion(List<XWPFParagraph> paragraphs, TestQuestion question) {
+	public List<TestResultItem> checkAllParagraphsQuestion(TestQuestion question) {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 		Map<String, TestResultProperty> resultProperties = new HashMap<String, TestResultProperty>();
+		
+		List<XWPFParagraph> paragraphs = document.getParagraphs();
 		
 		// Check properties of all paragraphs
 		for (XWPFParagraph paragraph : paragraphs) {
@@ -353,7 +369,7 @@ public class DocumentPropertyChecker {
 				}
 				
 				// Compare properties of this paragraph with question properties and update result if they match
-				TestResultProperty tempProperty = getParagraphProperty(paragraph, name);
+				TestResultProperty tempProperty = this.getParagraphProperty(paragraph, name);
 				if (tempProperty.getValue().equalsIgnoreCase(entry.getValue())) {
 					resultProperty.addScore(1);
 				}
@@ -378,7 +394,7 @@ public class DocumentPropertyChecker {
 	 * @param question
 	 * @return
 	 */
-	public static List<TestResultItem> checkDocumentQuestion(XWPFDocument docx, TestQuestion question) {
+	public List<TestResultItem> checkDocumentQuestion(TestQuestion question) {
 		List<TestResultItem> results = new ArrayList<TestResultItem>();
 		Map<String, TestResultProperty> resultProperties = new HashMap<String, TestResultProperty>();
 		
@@ -388,7 +404,7 @@ public class DocumentPropertyChecker {
 		for (Map.Entry<String, String> correctProperty : properties.entrySet()) {
 			// Get document property
 			String propertyName = correctProperty.getKey();
-			String value = getDocumentProperty(docx, propertyName);
+			String value = this.getDocumentProperty(propertyName);
 		
 			// Create result object for this property and update score if it is correct 
 			TestResultProperty resultProperty = new TestResultProperty(propertyName, value);
@@ -416,12 +432,12 @@ public class DocumentPropertyChecker {
 	 * @param property name of the property
 	 * @return
 	 */
-	private static String getDocumentProperty(XWPFDocument docx, String property) {
+	private String getDocumentProperty(String property) {
 		BigInteger targetMargin;
 		String value = "";
 		int dxaPerInch = 1440;
 		
-		CTPageMar marginObject = docx.getDocument().getBody().getSectPr().getPgMar();
+		CTPageMar marginObject = document.getDocument().getBody().getSectPr().getPgMar();
 
 		switch (property) {
 			case "MARGIN TOP":
@@ -452,7 +468,7 @@ public class DocumentPropertyChecker {
 	 * @param question
 	 * @return
 	 */
-    public static List<TestResultItem> checkPropertiesOfPictures(List<XWPFPictureData> pictures, TestQuestion question) {
+    public List<TestResultItem> checkPropertiesOfPictures(TestQuestion question) {
     	List<TestResultItem> results = new ArrayList<TestResultItem>();
     	
         List<String> strings = question.getStrings();
@@ -460,13 +476,13 @@ public class DocumentPropertyChecker {
         // For each required picture
     	for (String checksum : strings) {
     		// Get picture that has the specified checksum
-			XWPFPictureData picture = findPictureWithChecksum(pictures, checksum);
+			XWPFPictureData picture = findPictureWithChecksum(checksum);
 			TestResultItem resultItem = new TestResultItem(checksum);
 			resultItem.setExists(picture != null);
 			
 			// Get picture properties
 			if (resultItem.exists()) {
-				resultItem.setProperties(checkPictureProperties(picture, question));
+				resultItem.setProperties(this.checkPictureProperties(picture, question));
 			}
 			
 			// Add to results
@@ -482,8 +498,9 @@ public class DocumentPropertyChecker {
      * @param checksum
      * @return
      */
-    private static XWPFPictureData findPictureWithChecksum(List<XWPFPictureData> pictures, String checksum) {
+    private XWPFPictureData findPictureWithChecksum(String checksum) {
     	XWPFPictureData picture = null;
+    	List<XWPFPictureData> pictures = document.getAllPictures();
     	
     	for (XWPFPictureData tempPicture : pictures) {
     		if (tempPicture.getChecksum() == Long.parseLong(checksum)) {
@@ -501,7 +518,7 @@ public class DocumentPropertyChecker {
      * @param question
      * @return
      */
-    private static Map<String, TestResultProperty> checkPictureProperties(XWPFPictureData picture, TestQuestion question) {
+    private Map<String, TestResultProperty> checkPictureProperties(XWPFPictureData picture, TestQuestion question) {
     	Map<String, TestResultProperty> results = new HashMap<String, TestResultProperty>();
     	Map<String, String> questionProperties = question.getProperties();
     	
@@ -509,7 +526,7 @@ public class DocumentPropertyChecker {
     		String name = correctProperty.getKey();
     		
     		TestResultProperty resultProperty = new TestResultProperty(name);
-    		resultProperty.setValue(getPictureProperty(picture, name));
+    		resultProperty.setValue(this.getPictureProperty(picture, name));
     		
     		if (resultProperty.getValue().equalsIgnoreCase(correctProperty.getValue())) {
     			resultProperty.addScore(1);
@@ -528,7 +545,7 @@ public class DocumentPropertyChecker {
      * @param propertyName
      * @return
      */
-    private static String getPictureProperty(XWPFPictureData picture, String propertyName) {
+    private String getPictureProperty(XWPFPictureData picture, String propertyName) {
     	String pictureProperty;
     	
     	switch(propertyName) {
@@ -545,7 +562,8 @@ public class DocumentPropertyChecker {
     	return pictureProperty;
     }
     
-    public static List<TestResultItem> checkContentsOfTable(XWPFTable t, ArrayList<String> sl) {
+    public List<TestResultItem> checkContentsOfTable(ArrayList<String> sl) {
+    	XWPFTable t = document.getTables().get(0);
         Map<String, TestResultItem> results = new HashMap<>();
         XWPFTableRow r;
         XWPFTableCell c;
