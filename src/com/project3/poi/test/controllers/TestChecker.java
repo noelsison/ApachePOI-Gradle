@@ -41,7 +41,7 @@ public class TestChecker {
 			resultMap = DocumentPropertyChecker.checkDocumentQuestion(docx, question);
 			break;
 		case PICTURE:
-            resultMap = DocumentPropertyChecker.checkPropertiesOfPictures(docx.getAllPictures(), question.getStrings(), question.getProperties());
+            resultMap = DocumentPropertyChecker.checkPropertiesOfPictures(docx.getAllPictures(), question);
             break;
         case TABLE_CONTENT:
             resultMap = DocumentPropertyChecker.checkContentsOfTable(docx.getTables().get(0), question.getStrings());

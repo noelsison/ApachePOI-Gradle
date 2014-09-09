@@ -77,10 +77,23 @@ public class DocumentPropertyChecker {
 	 */
 	private static XWPFParagraph findParagraphWithString(List<XWPFParagraph> paragraphs, String string) {
 		XWPFParagraph paragraph = null;
+		
+		// Check the next paragraphs while string is not found
+		
+		/******* Anong mas readable? A or B? *******/
+
+		/******* A *****/
+		for (XWPFParagraph tempParagraph : paragraphs) {
+			if (tempParagraph.getText().contains(string)) {
+				paragraph = tempParagraph;
+				break;
+			}
+		}
+		
+		/******* B *****/
 		Iterator<XWPFParagraph> iterator = paragraphs.iterator();
 		boolean found = false;
-
-		// Check the next paragraphs while string is not found
+		
 		while (iterator.hasNext() && !found) {
 			paragraph = iterator.next();
 			found = paragraph.getText().contains(string);
@@ -406,7 +419,7 @@ public class DocumentPropertyChecker {
 	private static String getDocumentProperty(XWPFDocument docx, String property) {
 		BigInteger targetMargin;
 		String value = "";
-		// int someNumber = 1440;
+		int dxaPerInch = 1440;
 		
 		CTPageMar marginObject = docx.getDocument().getBody().getSectPr().getPgMar();
 
@@ -429,60 +442,109 @@ public class DocumentPropertyChecker {
 				break;
 		}
 		
-		value = String.valueOf(targetMargin.longValue() / 1440);
+		value = String.valueOf(targetMargin.longValue() / dxaPerInch);
 		return value;
 	}
 	
-	//////// REFACTOR THIS TO FOLLOW ABOVE STYLE
-	public static boolean checkIfPictureHasProperty(XWPFPictureData picture, String property, String value) {
-      switch (property) {
-        case "EXTENSION":
-          return picture.suggestFileExtension().equalsIgnoreCase(value);
-        default: 
-          System.out.print("Picture property unsupported: " + property);
-          return false;
-      }
+	/**
+	 * Returns results for PICTURE-type questions (if picture exists by comparing its checksum with the string/checksum list)
+	 * @param pictures
+	 * @param question
+	 * @return
+	 */
+    public static List<TestResultItem> checkPropertiesOfPictures(List<XWPFPictureData> pictures, TestQuestion question) {
+    	List<TestResultItem> results = new ArrayList<TestResultItem>();
+    	
+        List<String> strings = question.getStrings();
+    	
+        // For each required picture
+    	for (String checksum : strings) {
+    		// Get picture that has the specified checksum
+			XWPFPictureData picture = findPictureWithChecksum(pictures, checksum);
+			TestResultItem resultItem = new TestResultItem(checksum);
+			resultItem.setExists(picture != null);
+			
+			// Get picture properties
+			if (resultItem.exists()) {
+				resultItem.setProperties(checkPictureProperties(picture, question));
+			}
+			
+			// Add to results
+			results.add(resultItem);
+    	}
+    	
+    	return results;
     }
+    
     /**
-     * For now, sl contains checksums of pictures to identify them
+     * Returns the picture data whose checksum matches the argument
+     * @param pictures
+     * @param checksum
+     * @return
      */
-    public static List<TestResultItem> checkPropertiesOfPictures(List<XWPFPictureData> pictureList, ArrayList<String> sl, Map<String, String> properties) {
-        Map<String, TestResultItem> results = new HashMap<>();
-        String removeString = "";
-        // Initialize results, properties which were not found in the document are left as 0
-        for (String s: sl) {
-            results.put(s, new TestResultItem(s));
-            for(String property: properties.keySet()) {
-              results.get(s).setProperty(property, properties.get(property));
-              results.get(s).setExists(false);
-              results.get(s).getProperty(property).setScore(0);
-              results.get(s).getProperty(property).setTotal(0);
-            }
-        }
-        for (XWPFPictureData picture: pictureList) {
-            for (String s: sl) {
-               if(picture.getChecksum() == Long.parseLong(s)) {
-                 results.get(s).setExists(true);
-                   for (String property : properties.keySet()) {
-                         if(checkIfPictureHasProperty(picture, property, properties.get(property))) {
-                             results.get(s).getProperty(property).setScore(1);
-                             results.get(s).getProperty(property).setTotal(1);
-                         }
-                   }
-                 removeString = s;
-                 break;
-               }
-            }
-            if (! removeString.isEmpty()) {
-              sl.remove(removeString);
-            }
-        }
-        List<TestResultItem> result_list = new ArrayList();
-        for (String key: results.keySet()) {
-          result_list.add(results.get(key));
-        }
-        return result_list;
+    private static XWPFPictureData findPictureWithChecksum(List<XWPFPictureData> pictures, String checksum) {
+    	XWPFPictureData picture = null;
+    	
+    	for (XWPFPictureData tempPicture : pictures) {
+    		if (tempPicture.getChecksum() == Long.parseLong(checksum)) {
+    			picture = tempPicture;
+    			break;
+    		}
+    	}
+    	
+    	return picture;
     }
+    
+    /**
+     * Returns properties of picture data related to the question
+     * @param picture
+     * @param question
+     * @return
+     */
+    private static Map<String, TestResultProperty> checkPictureProperties(XWPFPictureData picture, TestQuestion question) {
+    	Map<String, TestResultProperty> results = new HashMap<String, TestResultProperty>();
+    	Map<String, String> questionProperties = question.getProperties();
+    	
+    	for (Map.Entry<String, String> correctProperty : questionProperties.entrySet()) {
+    		String name = correctProperty.getKey();
+    		
+    		TestResultProperty resultProperty = new TestResultProperty(name);
+    		resultProperty.setValue(getPictureProperty(picture, name));
+    		
+    		if (resultProperty.getValue().equalsIgnoreCase(correctProperty.getValue())) {
+    			resultProperty.addScore(1);
+    		}
+    		
+    		resultProperty.addTotal(1);
+    		results.put(name, resultProperty);
+    	}
+    	
+    	return results;
+    }
+    
+    /**
+     * Returns the property of the picture identified by the property name argument
+     * @param picture
+     * @param propertyName
+     * @return
+     */
+    private static String getPictureProperty(XWPFPictureData picture, String propertyName) {
+    	String pictureProperty;
+    	
+    	switch(propertyName) {
+    		case "EXTENSION":
+	            pictureProperty = picture.suggestFileExtension();
+	            break;
+            default:
+            	System.out.println("Picture property " + propertyName + " not supported!");
+            	pictureProperty = "";
+            	break;
+    	}
+    	
+    	pictureProperty = pictureProperty == null ? "" : pictureProperty;
+    	return pictureProperty;
+    }
+    
     public static List<TestResultItem> checkContentsOfTable(XWPFTable t, ArrayList<String> sl) {
         Map<String, TestResultItem> results = new HashMap<>();
         XWPFTableRow r;
