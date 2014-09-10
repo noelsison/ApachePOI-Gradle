@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.xwpf.usermodel.Borders;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
@@ -325,6 +326,10 @@ public class DocumentPropertyChecker {
 		case "ALIGN":
 			ParagraphAlignment alignment = paragraph.getAlignment();
 			resultValue = alignment == null ? "" : alignment.toString();
+			break;
+		case "BORDER BOTTOM":
+			Borders borderBottom = paragraph.getBorderBottom();
+			resultValue = borderBottom == null ? "" : String.valueOf(Borders.valueOf(borderBottom.getValue()));
 			break;
 		default:
 			System.out.println("Property " + propertyName + " does not exist!");
